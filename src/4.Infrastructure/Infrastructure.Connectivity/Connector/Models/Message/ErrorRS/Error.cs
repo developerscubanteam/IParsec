@@ -2,12 +2,11 @@
 
 namespace Infrastructure.Connectivity.Connector.Models.Message.ErrorRS
 {
-
-    public class ErrorRS
+    public class Error
     {
-        public required string errorCode { get; set; }
-        public required string errorMessage { get; set; }
-        public string ? supplierErrorCode { get; set; }
+        [JsonProperty("code")]
+        public string Code { get; set; }
+        [JsonProperty("message")]
+        public string Message { get; set; }
     }
-
 }

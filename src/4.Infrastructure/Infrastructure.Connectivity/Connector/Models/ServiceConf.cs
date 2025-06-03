@@ -11,6 +11,7 @@ namespace Infrastructure.Connectivity.Connector.Models
         public const string ClientName = "GW";
         public const int TimeoutValuation = 180000;
         public const int TimeoutBooking = 180000;
-
+        public static int ChildrenAge = 17;
+        public const string BookingIdSeparator = "|";
     }
 }
