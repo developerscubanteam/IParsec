@@ -1,5 +1,6 @@
 ﻿using Domain.Common;
 using Domain.Error;
+using Domain.ValuationCode;
 using Infrastructure.Connectivity.Connector.Models;
 using Infrastructure.Connectivity.Connector.Models.Message.AvailabilityRS;
 using Infrastructure.Connectivity.Connector.Models.Message.BookingRS;
@@ -8,6 +9,7 @@ using Infrastructure.Connectivity.Contracts;
 using Infrastructure.Connectivity.Queries.Base;
 using System.Diagnostics;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -19,12 +21,12 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
     public class UrlPath
     {
         //TODO: Change the path to the correct one
-        public const string Shopping = "shopping/multihotels";
-        public const string LiveCheck = "availability";
-        public const string PreBook = "reservation/prebook";
-        public const string Booking = "reservation/book";
-        public const string CancelBooking = "reservation/cancel";
-        public const string GetBookings = "reservation/detail";
+        public const string Shopping = "RQtP.Availability";
+        //public const string LiveCheck = "availability";
+        public const string PreBook = "RQtP.Valuation";
+        public const string Booking = "RQtP.CreateBooking";
+        public const string CancelBooking = "RQtP.CancelBooking";
+        public const string GetBookings = "RQtP.GetBooking";
     }
     public class HttpWrapper : IHttpWrapper
     {
@@ -42,7 +44,7 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
             var processTime = Stopwatch.StartNew();
             var auditData = new AuditData() { Requests = new List<Request>() };
             var auditRequest = new Request() { RequestName = c_Method, TimeStamp = DateTime.UtcNow };
-            var rqString = JsonSerializer.Serialize(query);
+            var rqString =  query.SerializeObjectXml(); 
             var responseString = "";
 
             try
@@ -53,13 +55,14 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
 
                 var client = _httpClientFactory.CreateClient(ServiceConf.ClientName);
                 // client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", connectionData.Token);
-                client.Timeout = TimeSpan.FromMilliseconds(timeout.GetValueOrDefault());
+                client.Timeout = TimeSpan.FromMilliseconds(timeout.Value);
+
                 var separator = connectionData.Url.EndsWith("/") ? "" : "/";
-                var uri = new Uri(connectionData.Url + separator + UrlPath.Shopping);
+                var uri = new Uri(connectionData.Url);
 
                 var message = new HttpRequestMessage(HttpMethod.Post, uri)
                 {
-                    Content = new StringContent(rqString, Encoding.UTF8, "application/json")
+                    Content = new StringContent(rqString, Encoding.UTF8, "text/xml")
                 };
 
                 var responseMessage = await client.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
@@ -69,16 +72,27 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
                 if (responseMessage.StatusCode == HttpStatusCode.OK)
                 {
                     var resultString = responseString;
-                    var response = JsonSerializer.Deserialize<Message.AvailabilityRS.AvailabilityRS>(resultString, SerializeExtension.Configure());
-                    
-                    // Si el resultado no trae error, pero no viene vacío (no tiene hotele) se debe devolver error "NO Results"
-                    var error = IsEmptyResult(response); //implement the logic to check if the response is empty
+                    var response = resultString.DeserializeXml<Message.AvailabilityRS.AvailabilityRS>();
+
+                    var errors = new List<Domain.Error.Error>();
+
+                    if (response.Errors != null && response.Errors.Any())
+                    {
+                        errors.AddRange(CheckError(response.Errors));
+                    }
+
+                    if (errors.Any())
+                    {
+                        auditRequest.Type = AuditDataType.KO;
+                        return (null, errors, auditData);
+                    }
+
+                    var error = IsEmptyResult(response); 
                     if (error != null)
                     {
                         auditRequest.Type = AuditDataType.NoResults;
                         return (null, error, auditData);
-                    }
-
+                    }                   
 
                     auditRequest.Type = AuditDataType.Ok;
                     return (response, null, auditData);
@@ -123,9 +137,9 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
             var valuationRq = (Message.ValuationRQ.ValuationRQ)query;
             var auditData = new AuditData() { Requests = new List<Request>() };
             var auditRequest = new Request() { RequestName = c_Method, TimeStamp = DateTime.UtcNow };
-            var rqString = JsonSerializer.Serialize(valuationRq);
+            var rqString = valuationRq.SerializeObjectXml();
             var responseString = "";
-            var response = new ValuationRS();
+            var response = new HotelValuationRS();
 
             try
             {
@@ -140,7 +154,7 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
 
                 var message = new HttpRequestMessage(HttpMethod.Post, uri)
                 {
-                    Content = new StringContent(rqString, Encoding.UTF8, "application/json")
+                    Content = new StringContent(rqString, Encoding.UTF8, "text/xml")
                 };
 
                 var responseMessage = await client.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
@@ -149,9 +163,9 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
                 if (responseMessage.StatusCode == HttpStatusCode.OK)
                 {
                     var resultLiveCheckString = responseString;
-                    response = JsonSerializer.Deserialize <Message.ValuationRS.ValuationRS >(resultLiveCheckString, SerializeExtension.Configure());
+                    response = resultLiveCheckString.DeserializeXml<Message.ValuationRS.HotelValuationRS>();
                     auditRequest.Type = AuditDataType.Ok;
-                    return (response, null, auditData);
+                    return (new ValuationRS() { results = response, vc = null }, null, auditData);
                 }
                 else
                 {
@@ -185,7 +199,7 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
         public async Task<(BookingRS? BookingRS, List<Domain.Error.Error>? Errors, AuditData AuditData)> Booking(ConnectionData connectionData, object query)
         {
             const string c_Method = UrlPath.Booking;
-            var rqString = JsonSerializer.Serialize(query);
+            var rqString = query.SerializeObjectXml();
             var auditData = new AuditData() { Requests = new List<Request>() };
             var auditRequest = new Request() { RequestName = c_Method, TimeStamp = DateTime.UtcNow };
             var responseString = "";
@@ -204,7 +218,7 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
 
                 var message = new HttpRequestMessage(HttpMethod.Post, uri)
                 {
-                    Content = new StringContent(rqString, Encoding.UTF8, "application/json")
+                    Content = new StringContent(rqString, Encoding.UTF8, "text/xml")
                 };              
 
                 var responseMessage = await client.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
@@ -213,7 +227,7 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
 
                 if (responseMessage.StatusCode == HttpStatusCode.OK)
                 {                   
-                    var response = JsonSerializer.Deserialize<Message.BookingRS.BookingRS>(responseString, SerializeExtension.Configure());
+                    var response = responseString.DeserializeXml<Message.BookingRS.BookingRS>();
                     auditRequest.Type = AuditDataType.Ok;
                     return (response, null, auditData);                    
                 }
@@ -250,7 +264,7 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
         {
             const string c_Method = UrlPath.CancelBooking;
             var processTime = Stopwatch.StartNew();
-            var rqString = JsonSerializer.Serialize(query);
+            var rqString = query.SerializeObjectXml();
             var auditData = new AuditData() { Requests = new List<Request>() };
             var auditRequest = new Request() { RequestName = c_Method, TimeStamp = DateTime.UtcNow };
             var responseString = "";
@@ -268,7 +282,7 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
 
                 var message = new HttpRequestMessage(HttpMethod.Post, uri)
                 {
-                    Content = new StringContent(rqString, Encoding.UTF8, "application/json")
+                    Content = new StringContent(rqString, Encoding.UTF8, "text/xml")
                 };                
 
                 var responseMessage = await client.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
@@ -276,7 +290,7 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
 
                 if (responseMessage.StatusCode == HttpStatusCode.OK)
                 {                    
-                    var response = JsonSerializer.Deserialize<Message.BookingRS.BookingRS>(responseString, SerializeExtension.Configure());
+                    var response = responseString.DeserializeXml<Message.BookingRS.BookingRS>();
                     auditRequest.Type = AuditDataType.Ok;
                     return (response, null, auditData);
                 }
@@ -312,7 +326,7 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
         public async Task<(Message.BookingRS.BookingRS? GetBookingRS, List<Domain.Error.Error>? Errors, AuditData AuditData)> GetBookings(ConnectionData connectionData, object query)
         {
             const string c_Method = UrlPath.GetBookings;
-            var rqString = JsonSerializer.Serialize(query);
+            var rqString = query.SerializeObjectXml();
             var auditData = new AuditData() { Requests = new List<Request>() };
             var auditRequest = new Request() { RequestName = c_Method, TimeStamp = DateTime.UtcNow };
             var processTime = Stopwatch.StartNew();
@@ -330,7 +344,7 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
 
                 var message = new HttpRequestMessage(HttpMethod.Post, uri)
                 {
-                    Content = new StringContent(rqString, Encoding.UTF8, "application/json")
+                    Content = new StringContent(rqString, Encoding.UTF8, "text/xml")
                 };                
 
                 var responseMessage = await client.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
@@ -339,7 +353,7 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
                 if (responseMessage.StatusCode == HttpStatusCode.OK)
                 {
                     
-                    var response = JsonSerializer.Deserialize<Message.BookingRS.BookingRS>(responseString, SerializeExtension.Configure());
+                    var response = responseString.DeserializeXml<Message.BookingRS.BookingRS>();
                     auditRequest.Type = AuditDataType.Ok;
                     return (response, null, auditData);
                 }
@@ -404,17 +418,29 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
             //TODO: Implement the error handling
             var errors = new List<Domain.Error.Error>
             {
-               
+                new Domain.Error.Error(errorRS.Code, errorRS.Description, ErrorType.Error, CategoryErrorType.Provider)
             };
+            return errors;
+        }
+
+        private List<Domain.Error.Error> CheckError(List<Message.Common.SupplierErrorRS> errorList)
+        {
+            //TODO: Implement the error handling
+            var errors = new List<Domain.Error.Error> { };
+            foreach (var error in errorList)
+            {
+                var newError = new Domain.Error.Error(((int)ErrorType.Error).ToString(), error.Text, ErrorType.Error, CategoryErrorType.Provider);
+                errors.Add(newError);
+            }
             return errors;
         }
 
         private List<Error>? IsEmptyResult(AvailabilityRS? response)
         {
-            if (response != null //Logic to check if the response is empty
-                )
+            if (response != null)
             {
-                return null;
+               if (response.Hotels.HotelCount > 0)
+                    return null;
             }
             return new List<Error> { new Error("NO_AVAIL_FOUND", "No availability found", ErrorType.NoResults, CategoryErrorType.Provider) };
         }
