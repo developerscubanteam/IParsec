@@ -51,8 +51,9 @@ namespace Application.WorkFlow
             var connectionData = new ConnectionData()
             {
                 Url = connection.Url,
-                User = connection.User,
-                Password = connection.Password
+                Username = connection.Username,
+                Password = connection.Password,
+                Context = connection.Context
             };
 
             var connectorQuery = new ValuationConnectorQuery()
@@ -74,8 +75,9 @@ namespace Application.WorkFlow
             var connectionData = new ConnectionData()
             {
                 Url = connection.Url,
-                User = connection.User,
-                Password = connection.Password
+                Username = connection.Username,
+                Password = connection.Password,
+                Context = connection.Context
             };
 
             var vc = FlowCodeServices.DecodeValuationCode(bookingCode.ValuationCode);
@@ -84,7 +86,7 @@ namespace Application.WorkFlow
                 ConnectionData = connectionData,
                 BookingCode = bookingCode,
                 ValuationCode = vc,
-                JPBookingCode = bookingCode.BookingToken,
+                JPBookingCode = bookingCode.BookCode,
                 ClientReference = query.Locator,
                 Remark = GetRemark(query),
                 BillingInformation = GetVCCData(query),

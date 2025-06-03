@@ -45,8 +45,9 @@ namespace Application.WorkFlow
             var connectionData = new ConnectionData()
             {
                 Url = connection.Url,
-                User = connection.User,
+                Username = connection.Username,
                 Password = connection.Password,
+                Context = connection.Context
 
             };
             var connectorQuery = new BookingsConnectorQuery()

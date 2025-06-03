@@ -6,6 +6,8 @@ using Domain.Common.MinimumPrice;
 using Domain.Error;
 using Domain.Valuation;
 using Domain.ValuationCode;
+using Infrastructure.Connectivity.Connector.Models.Message.Common;
+using Infrastructure.Connectivity.Connector.Models.Message.ValuationRQ;
 using Infrastructure.Connectivity.Connector.Models.Message.ValuationRS;
 using Infrastructure.Connectivity.Contracts;
 using Infrastructure.Connectivity.Queries;
@@ -56,8 +58,9 @@ namespace Application.WorkFlow
             var connectionData = new ConnectionData()
             {
                 Url = connection.Url,
-                User = connection.User,
-                Password = connection.Password
+                Username = connection.Username,
+                Password = connection.Password,
+                Context = connection.Context
             };
 
             var connectorQuery = new ValuationConnectorQuery()
@@ -85,24 +88,26 @@ namespace Application.WorkFlow
 
             if (valuationRS.Errors != null && valuationRS.Errors.Any())
                 result.Errors = valuationRS.Errors;
-
+       
             if (valuationRS.HotelBookingRulesRS != null)
             {
                 //TODO: Fill Valuation
-                //var hotelOption = Data = default;
-                result.Status = GetStatus(default);
+                var hotelOption = valuationRS.HotelBookingRulesRS.results;
+                var roomRate = hotelOption.Rooms.FirstOrDefault().RoomRates.FirstOrDefault();
+                result.Status = GetStatus(result);
                 result.Code = GetHotelCode(query.Include, default);
                 result.Name = GetHotelName(query.Include, default);
-                result.Mealplan = GetMealplan(query.Include, default);
-                result.Price = GetPrice(query.Include, default);
-                result.CancellationPolicy = GetCancellationPolicy(query.Include, DateTime.Parse(vc.CheckIn), default);
+                result.Mealplan = GetMealplan(query.Include, roomRate);
+                result.Price = GetPrice(query.Include, roomRate);
+                result.CancellationPolicy = GetCancellationPolicy(query.Include, valuationRS.HotelBookingRulesRS);
                 result.MinimumPrice = GetMinimumPrice(query.Include, default);
                 result.Fees = GetValuationFees(query.Include, default);
-                result.Remarks = GetRemarks(query.Include, default);
+                result.Remarks = GetRemarks(query.Include, valuationRS.HotelBookingRulesRS);
                 result.Promotions = GetPromotions(query.Include, default);
-                result.Rooms = GetRooms(query.Include, default);
-                result.BookingCode = GetBookingCode(query.ValuationCode, default);
-                result.PaymentType = GetPaymentType(query.Include, default, vc.CheckIn);
+                result.Rooms = GetRooms(query.Include, valuationRS.HotelBookingRulesRS);
+                result.BookingCode = GetBookingCode("vc", "valuationRS.HotelBookingRulesRS");
+                result.PaymentType = GetPaymentType(query.Include, default);
+                
             }
 
             return result;
@@ -130,13 +135,18 @@ namespace Application.WorkFlow
         }
 
         private Domain.Common.CancellationPolicy.CancellationPolicy? GetCancellationPolicy(Dictionary<string, List<string>>? include,
-            DateTime checkIn, object? cancellationPolicy)
+            ValuationRS valuationConnectorRS)
         {
             if (IncludeService.CheckIfIsIncluded(include, Cancellationpolicy.intance, Cancellationpolicy.Empty.intance))
             {
                 // TODO: Fill CancellationPolicy
-                if (cancellationPolicy != null)
-                    return Services.CancellationPolicyService.GetCancellationPolicy(cancellationPolicy, 0, "", checkIn);
+                var roomRate = valuationConnectorRS.results.Rooms[0].RoomRates[0];
+                return Services.CancellationPolicyService.GetCancellationPolicy(
+                    roomRate.CancelPenalties,
+                    roomRate.Rates.ToList().Min(i => i.EffectiveDate),
+                    roomRate.Total.Currency,
+                    valuationConnectorRS.results.Rooms.Count
+                );
             }
 
             return null;
@@ -156,7 +166,7 @@ namespace Application.WorkFlow
             return null;
         }
 
-        private PaymentType? GetPaymentType(Dictionary<string, List<string>>? include, object hotelOption, string checkIn)
+        private PaymentType? GetPaymentType(Dictionary<string, List<string>>? include, object hotelOption)
         {
             if (IncludeService.CheckIfIsIncluded(include, Root.intance, Root.Paymenttype.intance))
             {
@@ -175,45 +185,67 @@ namespace Application.WorkFlow
             return null;
         }
 
-        private string GetBookingCode(string vc, object hotelOption)
+        private string GetBookingCode(string vc, string bookCode)
         {
             //TODO: Fill BookingCode
-            return FlowCodeServices.GetBookingCode(vc, "", [0], [0]);
+
+            return FlowCodeServices.GetBookingCode(vc, bookCode);
         }
 
-        private IEnumerable<Domain.Common.Room>? GetRooms(Dictionary<string, List<string>>? include, object hotelRooms)
+        private IEnumerable<Domain.Common.Room>? GetRooms(Dictionary<string, List<string>>? include, ValuationRS valuationConnectorRS)
         {
             // TODO: Fill Rooms
             if (IncludeService.CheckIfIsIncluded(include, Rooms.intance, Rooms.Empty.intance))
             {
                 var rooms = new List<Domain.Common.Room>();
-                //foreach (var hotelRoom in hotelRooms)
-                //{
+                foreach (var supplierRoom in valuationConnectorRS.results.Rooms)
+                {
+                    int i = 0;
 
-                var room = new Domain.Common.Room() { RoomRefId = 1 };
-                if (IncludeService.CheckIfIsIncluded(include, Rooms.intance, Rooms.Name.intance))
-                    room.Name = "";
+                    var room = new Domain.Common.Room()
+                    {
+                        RoomRefId = valuationConnectorRS.vc.RoomsRef[i],
+                        Description = supplierRoom.RoomType.Name,
+                        Code = supplierRoom.RoomType.Code,
+                    };
 
-                if (IncludeService.CheckIfIsIncluded(include, Occupancy.intance, Occupancy.Empty.intance))
-                    room.Occupancy = GetRoomOccupancy(hotelRooms);
 
-                if (IncludeService.CheckIfIsIncluded(include, Rooms.intance, Rooms.Description.intance))
-                    room.Description = "hotelRoom.Description";
+                    if (IncludeService.CheckIfIsIncluded(include, Rooms.intance, Rooms.Name.intance))
+                        room.Name = "";
 
-                return rooms;
+                    if (IncludeService.CheckIfIsIncluded(include, Occupancy.intance, Occupancy.Empty.intance))
+                        //room.Occupancy = GetRoomOccupancy(hotelRooms);
+
+                    if (IncludeService.CheckIfIsIncluded(include, Rooms.intance, Rooms.Description.intance))
+                        room.Description = "hotelRoom.Description";
+
+                    i++;
+                    rooms.Add(room);
+                    return rooms;
+                }               
             }
+
             return null;
         }
 
-        private List<string>? GetRemarks(Dictionary<string, List<string>>? include, object hotelOption)
+        private List<string>? GetRemarks(Dictionary<string, List<string>>? include, ValuationRS valuationConnectorRS)
         {
             if (IncludeService.CheckIfIsIncluded(include, Root.intance, Root.Remarks.intance))
             {
-                var remarks = new List<string>();
-                // TODO: Fill Remarks
+                var roomType = valuationConnectorRS.results.Rooms.First().RoomType;
 
-                if (remarks.Any())
-                    return remarks;
+                List<string> remarks = new List<string>();
+                if (roomType.ExtraInfo != null && roomType.ExtraInfo.Any())
+                {
+                    remarks.AddRange(roomType.ExtraInfo.Select(x => x.Text).ToList());
+                }
+
+                if (roomType.Special != null)
+                {
+                    remarks.Add(roomType.Special);
+                }
+
+                return remarks;
 
             }
             return null;
@@ -231,20 +263,20 @@ namespace Application.WorkFlow
             else
                 return null;
         }
-        private Domain.Common.Mealplan? GetMealplan(Dictionary<string, List<string>>? include, object hotelOption)
+        private Domain.Common.Mealplan? GetMealplan(Dictionary<string, List<string>>? include, RoomRate roomRate)
         {
             // TODO: Fill Mealplan
             if (IncludeService.CheckIfIsIncluded(include, Mealplans.intance, Mealplans.Empty.intance))
             {
-                if (hotelOption != null)
+                if (roomRate != null)
                 {
                     var mealplan = new Domain.Common.Mealplan()
                     {
-                        Code = "hotelOption.PriceInformation.Board.Type,"
+                        Code = roomRate.MealPlan
                     };
 
                     if (IncludeService.CheckIfIsIncluded(include, Mealplans.intance, Mealplans.Name.intance))
-                        mealplan.Name = "hotelOption.PriceInformation.Board.Text;";
+                        mealplan.Name = roomRate.MealPlan;
 
                     return mealplan;
                 }
@@ -253,12 +285,13 @@ namespace Application.WorkFlow
             return null;
         }
 
-        private Domain.Common.Price.Price? GetPrice(Dictionary<string, List<string>>? include, object hotelOption)
+        private Domain.Common.Price.Price? GetPrice(Dictionary<string, List<string>>? include, RoomRate roomRate)
         {
             if (IncludeService.CheckIfIsIncluded(include, Prices.intance, Prices.Empty.intance))
             {
                 // TODO: Fill Price
-                return PriceService.GetPrice(default, default, default, default, null);                
+               
+                return PriceService.GetPrice(roomRate.Total.Currency, (decimal)roomRate.Total.Amount, true, (decimal)roomRate.Total.Commission, null);                
             }
 
             return null;

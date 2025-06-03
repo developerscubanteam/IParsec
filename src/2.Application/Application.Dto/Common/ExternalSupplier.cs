@@ -17,8 +17,9 @@ namespace Application.Dto.Common
             var connection = new ConnectionData()
             {
                 Url = Connection["Url"],
-                User = Connection["User"],
-                Password = Connection["Password"]
+                Username = Connection["Username"],
+                Password = Connection["Password"],
+                Context = Connection["Context"]
             };
             return connection;
         }

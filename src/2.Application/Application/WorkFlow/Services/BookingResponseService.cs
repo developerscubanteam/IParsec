@@ -1,7 +1,9 @@
 ﻿using Domain.Booking;
 using Domain.Common;
 using Domain.Common.MinimumPrice;
+using Infrastructure.Connectivity.Connector.Models.Message.BookingRQ;
 using Infrastructure.Connectivity.Connector.Models.Message.BookingRS;
+using Infrastructure.Connectivity.Connector.Models.Message.ErrorRS;
 
 namespace Application.WorkFlow.Services
 {
@@ -49,6 +51,8 @@ namespace Application.WorkFlow.Services
                 booking.Status = SetStatus(Response.BookingRS);
                 booking.BookingId = "";
 
+                var hotelRes = Response.BookingRS.BookingInfoRs.HotelResList.First();
+
 
                 if (IncludeService.CheckIfIsIncluded(include, keyInclude, BookingsK.Cancellocator.intance))
                     booking.CancelLocator = "";
@@ -66,7 +70,7 @@ namespace Application.WorkFlow.Services
                     booking.ClientReference = default;
 
                 if (IncludeService.CheckIfIsIncluded(include, keyInclude, BookingsK.Comments.intance))
-                    booking.Comments = GetComments(default, default);
+                    booking.Comments = GetComments( hotelRes);
 
                 if (IncludeService.CheckIfIsIncluded(include, Holder.intance, Holder.Empty.intance))
                     booking.Holder = GetHolder(default, default);
@@ -87,8 +91,8 @@ namespace Application.WorkFlow.Services
                 }
 
                 if (IncludeService.CheckIfIsIncluded(include, Cancellationpolicy.intance, Cancellationpolicy.Empty.intance))
-                    booking.CancellationPolicy = CancellationPolicyService.GetCancellationPolicy(default, 0,"",
-                        DateTime.Parse(default));
+                   /* booking.CancellationPolicy = CancellationPolicyService.GetCancellationPolicy(default, 0,"",
+                        DateTime.Parse(default));*/
 
                 if (IncludeService.CheckIfIsIncluded(include, Fees.intance, Fees.Empty.intance))
                     booking.Fees = GetFees(default);
@@ -214,7 +218,7 @@ namespace Application.WorkFlow.Services
             return bkPax;
         }
 
-        private static List<BookingRoom>? GetRooms(Dictionary<string, List<string>>? include, object service, 
+        private static List<Domain.Booking.BookingRoom>? GetRooms(Dictionary<string, List<string>>? include, object service, 
             object paxes)
         {
             // TODO: Fill rooms
@@ -253,12 +257,24 @@ namespace Application.WorkFlow.Services
 
         }
 
-        private static string GetComments(object reservation, object service) {
+        private static string GetComments(Infrastructure.Connectivity.Connector.Models.Message.BookingRS.HotelRes hotelRes) {
 
             // TODO: Fill comments
-            var comments = "";
+            string result = "";
+            var room = hotelRes.Rooms.First();
 
-            return comments;
+            if (room.RoomType != null)
+            {
+                if (room.RoomType.ExtraInfo != null && room.RoomType.ExtraInfo.Any())
+                    result = string.Join(".", room.RoomType.ExtraInfo.Select(x => x.Text));
+
+                if (room.RoomType.Special != null)
+                    result += "." + room.RoomType.Special;
+                if (hotelRes.Info != null && hotelRes.Info.Warnings != null && hotelRes.Info.Warnings.Any())
+                    result += "." + string.Join(".", hotelRes.Info.Warnings.Select(x => x.Text));
+            }
+
+            return result;
         }
 
 
@@ -267,25 +283,26 @@ namespace Application.WorkFlow.Services
             if (BookingRS == null)
                 return Status.Error;
 
-            var bookingStatus = "";
+            var bookingStatus = BookingRS.BookingInfoRs.HotelResList.First();
 
             var status = Status.Confirmed;
-            switch (bookingStatus)
+
+           /* switch (status)
             {
-                case "TAR":
-                case "CON":
-                case "PAG":
+                case "OK":
                     status = Status.Confirmed;
                     break;
-                case "PDI":
-                case "PRE":
-                    status = Status.OnRequest;
-                    break;
-                case "CAC":
-                case "CAN":
+                case "CA":
                     status = Status.Cancelled;
                     break;
-            }
+                case "OR":
+                    status = Status.OnRequest;
+                    break;
+
+                default:
+                    status = Status.Error;                   
+                    break;
+            }*/
 
             return status;
         }

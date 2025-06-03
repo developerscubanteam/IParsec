@@ -29,7 +29,7 @@ namespace Ijuniper.test
         [SetUp]
         public void Setup()
         {
-            var application = new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<Program>();            
+            var application = new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<Program>();
             _client = application.CreateClient();
         }
 
@@ -43,10 +43,13 @@ namespace Ijuniper.test
                 ExternalSupplier = new ExternalSupplier()
                 {
 
-                    Code = "IJuniper",
+                    Code = "IPaximum",
                     Connection = new System.Collections.Generic.Dictionary<string, string>()
                     {
-                        
+                        {"Url", "https://staging.olympiaeurope.com/NewAvailabilityServlet/hotelavail/OTA2014Compact"},
+                        {"Password", "5a70e77bc3"},
+                        {"Username", "628834"},
+                        {"Context", "olympia_europe"}
                     }
                     ,
                     Params = new System.Collections.Generic.Dictionary<string, string>()
@@ -57,31 +60,22 @@ namespace Ijuniper.test
                 SearchCriteria = new SearchCriteria()
                 {
                     AccommodationCodes = new List<string>() {
-                        "hot"
-
-                     },
-                    CheckIn = new DateTime(2024, 12, 06),
-                    CheckOut = new DateTime(2024, 12, 11),
+                        "33402","316994","15892"
+                    },
+                    CheckIn = new DateTime(2025, 07, 17),
+                    CheckOut = new DateTime(2025, 07, 18),
                     Currency = "EUR",
-                    Nationality = "ES",
-                    Language = "es",
+                    Language = "ES",
+                    Nationality = "IT",
                     RoomCandidates = new List<Application.Dto.AvailabilityService.Room>() {
                          new Application.Dto.AvailabilityService.Room(){
-                             PaxesAge = new List<byte>(){ 20},
-                             RoomRefId = 1
-                         },
-                         //new Application.Dto.AvailabilityService.Room(){
-                         //    PaxesAge = new List<byte>(){ 30},
-                         //    RoomRefId = 2
-                         //},
-                         //new Application.Dto.AvailabilityService.Room(){
-                         //    PaxesAge = new List<byte>(){ 40,45},
-                         //    RoomRefId = 3
-                         //},
-                         //new Application.Dto.AvailabilityService.Room(){
-                         //    PaxesAge = new List<byte>(){ 40,50},
-                         //    RoomRefId = 4
-                         //},
+                            PaxesAge = new List<byte>(){ 30},
+                            RoomRefId = 1
+                        },
+                        new Application.Dto.AvailabilityService.Room(){
+                            PaxesAge = new List<byte>(){ 30,30},
+                            RoomRefId = 2
+                        },
                      }
                 },
                 Timeout = 100000,
@@ -133,9 +127,10 @@ namespace Ijuniper.test
                     Code = "IPaximum",
                     Connection = new System.Collections.Generic.Dictionary<string, string>()
                     {
-
-                        { "Url","http://api.stage.paximum.com"},
-                        { "ApiKey","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkYjkwZmJmZi03YWNkLTQyNDctYmZlNi01MTk4NzkwNWJlNzIiLCJyb2xlIjoiYjJjOmFwcCIsIm5iZiI6MTcyNDY1NjQwMSwiZXhwIjoxODgyNDIyNzYyLCJpYXQiOjE3MjQ2NTY0MDEsImlzcyI6Imh0dHBzOi8vYXV0aC5wYXhpbXVtLmNvbSIsImF1ZCI6Imh0dHBzOi8vYXBpLnBheGltdW0uY29tIn0.iBfdfn6wSUFsjC1lGcZNd9cYFRmAjktNx_cFiIx0Oak"},
+                        {"Url", "https://staging.olympiaeurope.com/NewAvailabilityServlet/hotelavail/OTA2014Compact"},
+                        {"Password", "5a70e77bc3"},
+                        {"Username", "628834"},
+                        {"Context", "olympia_europe"}
                     }
                     ,
                     Params = new System.Collections.Generic.Dictionary<string, string>()
