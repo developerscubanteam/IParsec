@@ -163,6 +163,21 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
                 {
                     var resultLiveCheckString = responseString;
                     response = resultLiveCheckString.DeserializeXml<Message.ValuationRS.HotelValuationRS>();
+
+                    var errors = new List<Domain.Error.Error>();
+
+                    if (response.Errors != null && response.Errors.Any())
+                    {
+                        errors.AddRange(CheckError(response.Errors));
+                    }
+
+                    if (errors.Any())
+                    {
+                        auditRequest.Type = AuditDataType.KO;
+                        return (null, errors, auditData);
+                    }
+
+                    
                     auditRequest.Type = AuditDataType.Ok;
                     return (new ValuationRS() { results = response, vc = null }, null, auditData);
                 }
@@ -227,6 +242,20 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
                 if (responseMessage.StatusCode == HttpStatusCode.OK)
                 {                   
                     var response = responseString.DeserializeXml<Message.BookingRS.BookingInfoRs>();
+
+                    var errors = new List<Domain.Error.Error>();
+
+                    if (response.Errors != null && response.Errors.Any())
+                    {
+                        errors.AddRange(CheckError(response.Errors));
+                    }
+
+                    if (errors.Any())
+                    {
+                        auditRequest.Type = AuditDataType.KO;
+                        return (null, errors, auditData);
+                    }
+
                     auditRequest.Type = AuditDataType.Ok;
                     return (new BookingRS() { BookingInfoRs = response}, null, auditData);                    
                 }
@@ -275,8 +304,8 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
                 client.Timeout = TimeSpan.FromMilliseconds(ServiceConf.TimeoutBooking);
 
                 var separator = connectionData.Url.EndsWith("/") ? "" : "/";
-                var url = connectionData.Url + separator + UrlPath.CancelBooking;
-                var uri = new Uri(url);
+
+                var uri = new Uri(connectionData.Url);
                 client.BaseAddress = uri;
 
                 var message = new HttpRequestMessage(HttpMethod.Post, uri)
@@ -337,8 +366,8 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
                 client.Timeout = TimeSpan.FromMilliseconds(ServiceConf.TimeoutBooking);
 
                 var separator = connectionData.Url.EndsWith("/") ? "" : "/";
-                var url = connectionData.Url + separator + UrlPath.GetBookings;
-                var uri = new Uri(url);
+
+                var uri = new Uri(connectionData.Url);
                 client.BaseAddress = uri;
 
                 var message = new HttpRequestMessage(HttpMethod.Post, uri)
