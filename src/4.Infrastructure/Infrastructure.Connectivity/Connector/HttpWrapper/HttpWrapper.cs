@@ -318,9 +318,23 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
 
                 if (responseMessage.StatusCode == HttpStatusCode.OK)
                 {                    
-                    var response = responseString.DeserializeXml<Message.BookingRS.BookingRS>();
+                    var response = responseString.DeserializeXml<Message.BookingRS.BookingInfoRs>();
+
+                    var errors = new List<Domain.Error.Error>();
+
+                    if (response.Errors != null && response.Errors.Any())
+                    {
+                        errors.AddRange(CheckError(response.Errors));
+                    }
+
+                    if (errors.Any())
+                    {
+                        auditRequest.Type = AuditDataType.KO;
+                        return (null, errors, auditData);
+                    }
+
                     auditRequest.Type = AuditDataType.Ok;
-                    return (response, null, auditData);
+                    return (new BookingRS { BookingInfoRs = response}, null, auditData);
                 }
                 else
                 {
@@ -379,11 +393,24 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
                 responseString = await responseMessage.Content.ReadAsStringAsync();
 
                 if (responseMessage.StatusCode == HttpStatusCode.OK)
-                {
-                    
-                    var response = responseString.DeserializeXml<Message.BookingRS.BookingRS>();
+                {                    
+                    var response = responseString.DeserializeXml<Message.BookingRS.BookingInfoRs>();
+
+                    var errors = new List<Domain.Error.Error>();
+
+                    if (response.Errors != null && response.Errors.Any())
+                    {
+                        errors.AddRange(CheckError(response.Errors));
+                    }
+
+                    if (errors.Any())
+                    {
+                        auditRequest.Type = AuditDataType.KO;
+                        return (null, errors, auditData);
+                    }
+
                     auditRequest.Type = AuditDataType.Ok;
-                    return (response, null, auditData);
+                    return (new BookingRS { BookingInfoRs = response}, null, auditData);
                 }
                 else
                 {

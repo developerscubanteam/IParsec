@@ -252,9 +252,15 @@ namespace Ijuniper.test
                     Code = "IPaximum",
                     Connection = new System.Collections.Generic.Dictionary<string, string>()
                     {
-
-                        { "Url","http://api.stage.paximum.com"},
-                        { "ApiKey","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkYjkwZmJmZi03YWNkLTQyNDctYmZlNi01MTk4NzkwNWJlNzIiLCJyb2xlIjoiYjJjOmFwcCIsIm5iZiI6MTcyNDY1NjQwMSwiZXhwIjoxODgyNDIyNzYyLCJpYXQiOjE3MjQ2NTY0MDEsImlzcyI6Imh0dHBzOi8vYXV0aC5wYXhpbXVtLmNvbSIsImF1ZCI6Imh0dHBzOi8vYXBpLnBheGltdW0uY29tIn0.iBfdfn6wSUFsjC1lGcZNd9cYFRmAjktNx_cFiIx0Oak"},
+                        {"Url", "https://staging.olympiaeurope.com/NewAvailabilityServlet/hotelcancel/OTA2014Compact"},
+                        {"Password", "5a70e77bc3"},
+                        {"Username", "628834"},
+                        {"Context", "olympia_europe"}
+                    }
+                    ,
+                    Params = new System.Collections.Generic.Dictionary<string, string>()
+                    {
+                        { "NumberAccommodationPerRequest", "150" }
                     }
                 },
                 BookingId = resNo,
@@ -297,9 +303,15 @@ namespace Ijuniper.test
                     Code = "IPaximum",
                     Connection = new System.Collections.Generic.Dictionary<string, string>()
                     {
-
-                        { "Url","http://api.stage.paximum.com"},
-                        { "ApiKey","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkYjkwZmJmZi03YWNkLTQyNDctYmZlNi01MTk4NzkwNWJlNzIiLCJyb2xlIjoiYjJjOmFwcCIsIm5iZiI6MTcyNDY1NjQwMSwiZXhwIjoxODgyNDIyNzYyLCJpYXQiOjE3MjQ2NTY0MDEsImlzcyI6Imh0dHBzOi8vYXV0aC5wYXhpbXVtLmNvbSIsImF1ZCI6Imh0dHBzOi8vYXBpLnBheGltdW0uY29tIn0.iBfdfn6wSUFsjC1lGcZNd9cYFRmAjktNx_cFiIx0Oak"},
+                        {"Url", "https://staging.olympiaeurope.com/NewAvailabilityServlet/reservationsread/OTA2014Compact"},
+                        {"Password", "5a70e77bc3"},
+                        {"Username", "628834"},
+                        {"Context", "olympia_europe"}
+                    }
+                    ,
+                    Params = new System.Collections.Generic.Dictionary<string, string>()
+                    {
+                        { "NumberAccommodationPerRequest", "150" }
                     }
                 },
                 //ClientReference = clientReference,
