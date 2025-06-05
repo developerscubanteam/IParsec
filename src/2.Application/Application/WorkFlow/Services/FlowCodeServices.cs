@@ -11,32 +11,12 @@ namespace Application.WorkFlow.Services
         private const string RowSeparator = "__";
         private const string RowFieldSeparator = "~,";
 
-        public static string GetValuationCode(StringBuilder vc, string establishmentId, string bookingCode, int roomsRef)
+        public static string GetValuationCode(StringBuilder vc, string establishmentId, string bookingCode, int roomsRef, string checking)
         {
             vc.Append(establishmentId).Append(FieldValuationSeparator);
             vc.Append(bookingCode).Append(FieldValuationSeparator);
             vc.Append(roomsRef).Append(FieldValuationSeparator);
-
-           /* for (int i = 0; i < bookingCode.Length; i++)
-            {
-                vc.Append(bookingCode[i]);
-                if (i < bookingCode.Length - 1)
-                {
-                    vc.Append(RowFieldSeparator);
-                }
-            }
-
-            vc.Append(FieldValuationSeparator);
-
-            for (int i = 0; i < roomsRef.Length; i++)
-            {
-                vc.Append(roomsRef[i]);
-                if (i < roomsRef.Length - 1)
-                {
-                    vc.Append(RowFieldSeparator);
-                }
-            }*/
-
+            vc.Append(checking);
             var valuationCode = vc.ToString();
             vc.Clear();
 
@@ -96,27 +76,27 @@ namespace Application.WorkFlow.Services
             {
                 EstablishmentId = vcParams[0],
                 BokingCode = bookingCodeFields.ToArray(),
-                RoomsRef = roomFields.ToArray()
+                RoomsRef = roomFields.ToArray(),
+                Checking = vcParams[3]
             };
 
             return vc;
         }
 
-        public static string GetBookingCode(string vc, string bookCode)
+        public static string GetBookingCode(string vc)
         {
             var bc = new StringBuilder();
-            bc.Append(vc).Append(FieldBookingSeparator);
-            bc.Append(bookCode);           
+            bc.Append(vc);           
             return bc.ToString();
         }
 
         public static BookingCode DecodeBookingCode(string bookingCode)
         {
-            var bcParams = bookingCode.Split(FieldBookingSeparator);
+            var bcParams = bookingCode.Split(FieldValuationSeparator);
 
             var bc = new BookingCode()
             {
-               ValuationCode = bcParams[0],
+               ValuationCode = bookingCode,
                BookCode = bcParams[1]
             };
 

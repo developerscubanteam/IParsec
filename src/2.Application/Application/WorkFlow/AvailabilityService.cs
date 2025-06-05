@@ -144,7 +144,7 @@ namespace Application.WorkFlow
                             combination.RateConditions = GetRateConditions(query.Include, roomRate);
                             combination.AdditionalServices = [];
                             combination.Remarks = GetRemarks(room, hotel.Info.Warnings);
-                            combination.ValuationCode = GetValuationCode(vc, establishmentId, roomRate.BookingCode, int.Parse(room.RPH));
+                            combination.ValuationCode = GetValuationCode(vc, establishmentId, roomRate.BookingCode, int.Parse(room.RPH), query.SearchCriteria);
                             //combination.Promotions = GetPromotions(query.Include, hotelOption.AdditionalElements.HotelOffers);
                             AddMealplan(mealPlan, combination, roomRate.MealPlan, query);
                        }
@@ -247,10 +247,10 @@ namespace Application.WorkFlow
         }
 
 
-        private string GetValuationCode(StringBuilder vc, string establishmentId, string bookingCode, int roomsRef)
-        {         
-
-            return FlowCodeServices.GetValuationCode(vc, establishmentId, bookingCode, roomsRef);
+        private string GetValuationCode(StringBuilder vc, string establishmentId, string bookingCode, int roomsRef, Dto.AvailabilityService.SearchCriteria searchCriteria)
+        {
+            var checkIn = searchCriteria.CheckIn.ToFormat_yyyyMMdd();
+            return FlowCodeServices.GetValuationCode(vc, establishmentId, bookingCode, roomsRef, checkIn);
         }
 
       

@@ -83,7 +83,7 @@ namespace Application.WorkFlow
             var vc = FlowCodeServices.DecodeValuationCode(bookingCode.ValuationCode);
             var connectorQuery = new BookingConnectorQuery()
             {
-                ConnectionData = connectionData,
+                ConnectionData = connectionData, 
                 BookingCode = bookingCode,
                 ValuationCode = vc,
                 JPBookingCode = bookingCode.BookCode,

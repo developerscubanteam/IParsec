@@ -1,4 +1,6 @@
-﻿using Application.Dto.ValuationService;
+﻿#nullable disable
+
+using Application.Dto.ValuationService;
 using Application.WorkFlow.Contracts;
 using Application.WorkFlow.Services;
 using Domain.Common;
@@ -6,12 +8,17 @@ using Domain.Common.MinimumPrice;
 using Domain.Error;
 using Domain.Valuation;
 using Domain.ValuationCode;
+using Infrastructure.Connectivity.Connector.Models.Message.BookingRQ;
 using Infrastructure.Connectivity.Connector.Models.Message.Common;
 using Infrastructure.Connectivity.Connector.Models.Message.ValuationRQ;
 using Infrastructure.Connectivity.Connector.Models.Message.ValuationRS;
 using Infrastructure.Connectivity.Contracts;
 using Infrastructure.Connectivity.Queries;
 using Infrastructure.Connectivity.Queries.Base;
+using System.Data;
+using System.Globalization;
+using Room = Infrastructure.Connectivity.Connector.Models.Message.ValuationRS.Room;
+using RoomRate = Infrastructure.Connectivity.Connector.Models.Message.Common.RoomRate;
 
 namespace Application.WorkFlow
 {
@@ -93,19 +100,23 @@ namespace Application.WorkFlow
             {
                 //TODO: Fill Valuation
                 var hotelOption = valuationRS.HotelBookingRulesRS.results;
-                var roomRate = hotelOption.Rooms.FirstOrDefault().RoomRates.FirstOrDefault();
+                //var roomRateList = hotelOption.Rooms;
+                var roomRateList = hotelOption.Rooms.Where(r => r.RoomRates != null).SelectMany(r => r.RoomRates).ToList();
+                var roomRate = roomRateList.FirstOrDefault();
+                var currency = roomRate.Total.Currency;
+                var checking = DateTime.ParseExact(vc.Checking, "yyyy-MM-dd", CultureInfo.InvariantCulture);
                 result.Status = GetStatus(result);
                 result.Code = GetHotelCode(query.Include, default);
                 result.Name = GetHotelName(query.Include, default);
                 result.Mealplan = GetMealplan(query.Include, roomRate);
-                result.Price = GetPrice(query.Include, roomRate);
-                result.CancellationPolicy = GetCancellationPolicy(query.Include, valuationRS.HotelBookingRulesRS);
+                result.Price = GetPrice(query.Include, roomRateList);
+                result.CancellationPolicy = GetCancellationPolicy(query.Include, hotelOption.Rooms, currency, checking);
                 result.MinimumPrice = GetMinimumPrice(query.Include, default);
                 result.Fees = GetValuationFees(query.Include, default);
                 result.Remarks = GetRemarks(query.Include, valuationRS.HotelBookingRulesRS);
                 result.Promotions = GetPromotions(query.Include, default);
-                result.Rooms = GetRooms(query.Include, valuationRS.HotelBookingRulesRS);
-                result.BookingCode = GetBookingCode("vc", "valuationRS.HotelBookingRulesRS");
+                result.Rooms = GetRooms(query.Include, valuationRS.HotelBookingRulesRS, vc);
+                result.BookingCode = GetBookingCode(query.ValuationCode);
                 result.PaymentType = GetPaymentType(query.Include, default);
                 
             }
@@ -135,20 +146,43 @@ namespace Application.WorkFlow
         }
 
         private Domain.Common.CancellationPolicy.CancellationPolicy? GetCancellationPolicy(Dictionary<string, List<string>>? include,
-            ValuationRS valuationConnectorRS)
+            List<Room> rooms, string currency, DateTime checking)
         {
             if (IncludeService.CheckIfIsIncluded(include, Cancellationpolicy.intance, Cancellationpolicy.Empty.intance))
             {
                 // TODO: Fill CancellationPolicy
-                var roomRate = valuationConnectorRS.results.Rooms[0].RoomRates[0];
-                return Services.CancellationPolicyService.GetCancellationPolicy(
-                    roomRate.CancelPenalties,
-                    roomRate.Rates.ToList().Min(i => i.EffectiveDate),
-                    roomRate.Total.Currency,
-                    valuationConnectorRS.results.Rooms.Count
-                );
-            }
+                var listCancellationPolicies = new List<Tuple<int, DateTime, decimal>>();
+                foreach (var room in rooms)
+                {
+                    var roomRef = int.Parse(room.RPH);
+                    var roomRateList = room.RoomRates;
 
+                    foreach (var roomRate in roomRateList)
+                    {
+                        var penaltyObj = roomRate.CancelPenalties;
+                        var cancelPenalties = penaltyObj.CancelPenalty;
+                        foreach (var penalty in cancelPenalties)
+                        {
+                            var amount = penalty.Charge.Amount == null ? 0 : (decimal)penalty.Charge.Amount;
+                            if (amount > 0)
+                            {
+                                var dateFrom = checking.AddDays(-penalty.Deadline.Units);
+                                listCancellationPolicies.Add(new Tuple<int, DateTime, decimal>
+                                    (
+                                    roomRef,
+                                    dateFrom,
+                                    penalty.Charge.Amount
+                                    ));
+                            }
+                        }
+                    }
+                    if (listCancellationPolicies.Any())
+                    {
+                        return Infrastructure.Connectivity.Connector.Extension.Extension
+                            .ProcessCancelPolice(listCancellationPolicies, currency, rooms.Count);
+                    }
+                }
+            }         
             return null;
         }
 
@@ -185,14 +219,14 @@ namespace Application.WorkFlow
             return null;
         }
 
-        private string GetBookingCode(string vc, string bookCode)
+        private string GetBookingCode(string vc)
         {
             //TODO: Fill BookingCode
 
-            return FlowCodeServices.GetBookingCode(vc, bookCode);
+            return FlowCodeServices.GetBookingCode(vc);
         }
 
-        private IEnumerable<Domain.Common.Room>? GetRooms(Dictionary<string, List<string>>? include, ValuationRS valuationConnectorRS)
+        private IEnumerable<Domain.Common.Room>? GetRooms(Dictionary<string, List<string>>? include, ValuationRS valuationConnectorRS, ValuationCode vc)
         {
             // TODO: Fill Rooms
             if (IncludeService.CheckIfIsIncluded(include, Rooms.intance, Rooms.Empty.intance))
@@ -204,7 +238,7 @@ namespace Application.WorkFlow
 
                     var room = new Domain.Common.Room()
                     {
-                        RoomRefId = valuationConnectorRS.vc.RoomsRef[i],
+                        RoomRefId = vc.RoomsRef[i],
                         Description = supplierRoom.RoomType.Name,
                         Code = supplierRoom.RoomType.Code,
                     };
@@ -285,13 +319,25 @@ namespace Application.WorkFlow
             return null;
         }
 
-        private Domain.Common.Price.Price? GetPrice(Dictionary<string, List<string>>? include, RoomRate roomRate)
+        private Domain.Common.Price.Price? GetPrice(Dictionary<string, List<string>>? include, List<RoomRate> roomRates)
         {
             if (IncludeService.CheckIfIsIncluded(include, Prices.intance, Prices.Empty.intance))
             {
                 // TODO: Fill Price
-               
-                return PriceService.GetPrice(roomRate.Total.Currency, (decimal)roomRate.Total.Amount, true, (decimal)roomRate.Total.Commission, null);                
+                if (roomRates.Any())
+                {
+                    var currency = roomRates.FirstOrDefault().Total.Currency;
+                    decimal totalCommission = 0;
+                    decimal totalAmount = 0;
+
+                    foreach ( var roomRate in roomRates)
+                    {
+                        totalAmount += roomRate.Total.Amount;
+                        totalCommission += roomRate.Total.Commission;
+                    }
+
+                    return PriceService.GetPrice(currency, totalAmount, true, totalCommission, null);
+                }           
             }
 
             return null;

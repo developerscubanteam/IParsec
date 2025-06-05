@@ -17,6 +17,8 @@ namespace Infrastructure.Connectivity.Connector.Models.Message.ValuationRS
     public class Room
     {
         public string Status { get; set; }
+        [XmlAttribute]
+        public string RPH { get; set; }
         public Common.RoomType RoomType { get; set; }
         public List<Common.RoomRate> RoomRates { get; set; }
     }

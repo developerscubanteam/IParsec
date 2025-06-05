@@ -134,10 +134,9 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
             var c_Method = UrlPath.PreBook;
             var processTime = Stopwatch.StartNew();
 
-            var valuationRq = (Message.ValuationRQ.ValuationRQ)query;
             var auditData = new AuditData() { Requests = new List<Request>() };
             var auditRequest = new Request() { RequestName = c_Method, TimeStamp = DateTime.UtcNow };
-            var rqString = valuationRq.SerializeObjectXml();
+            var rqString = query.SerializeObjectXml();
             var responseString = "";
             var response = new HotelValuationRS();
 
@@ -148,8 +147,8 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
                 client.Timeout = TimeSpan.FromMilliseconds(timeoutRq);
 
                 var separator = connectionData.Url.EndsWith("/") ? "" : "/";
-                var url = connectionData.Url + separator + UrlPath.PreBook;
-                var uri = new Uri(url);
+
+                var uri = new Uri(connectionData.Url);
                 client.BaseAddress = uri;
 
                 var message = new HttpRequestMessage(HttpMethod.Post, uri)
@@ -212,8 +211,8 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
                 client.Timeout = TimeSpan.FromMilliseconds(ServiceConf.TimeoutBooking);
 
                 var separator = connectionData.Url.EndsWith("/") ? "" : "/";
-                var url = connectionData.Url + separator + UrlPath.Booking;
-                var uri = new Uri(url);
+
+                var uri = new Uri(connectionData.Url);
                 client.BaseAddress = uri;
 
                 var message = new HttpRequestMessage(HttpMethod.Post, uri)
@@ -227,9 +226,9 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
 
                 if (responseMessage.StatusCode == HttpStatusCode.OK)
                 {                   
-                    var response = responseString.DeserializeXml<Message.BookingRS.BookingRS>();
+                    var response = responseString.DeserializeXml<Message.BookingRS.BookingInfoRs>();
                     auditRequest.Type = AuditDataType.Ok;
-                    return (response, null, auditData);                    
+                    return (new BookingRS() { BookingInfoRs = response}, null, auditData);                    
                 }
                 else
                 {

@@ -162,10 +162,10 @@ namespace Infrastructure.Connectivity.Connector
             return rooms;
         }
 
-        private Models.Message.ValuationRQ.ValuationRQ BuildValuationRequest(ValuationConnectorQuery query)
+        private Models.Message.BookingRQ.BookingRQ BuildValuationRequest(ValuationConnectorQuery query)
         {
             // TODO: Implement this method
-            var valuationRq = new ValuationRQ()
+            var valuationRq = new BookingRQ()
             {
                 Header = new BookingSecurityRQ
                 {
@@ -194,19 +194,15 @@ namespace Infrastructure.Connectivity.Connector
 
         private List<Room> GetPreBookRooms(ValuationCode vc)
         {
-            var result = new List<Room>();
-            for (int i = 0; i < vc.RoomsRef.Length; i++)
-            {
-                result.Add(
-                    new Room()
+            return vc.BokingCode
+                .Select(code => new Room
+                {
+                    RoomRate = new Connectivity.Connector.Models.Message.BookingRQ.RoomRate
                     {
-                        RoomRate = new Connectivity.Connector.Models.Message.BookingRQ.RoomRate()
-                        {
-                            BookingCode = vc.BokingCode.ToString()
-                        }
-                    });
-            }
-            return result;
+                        BookingCode = code
+                    }
+                })
+                .ToList();
         }
 
         private Models.Message.BookingRQ.BookingRQ BuildBookingRequest(BookingConnectorQuery query)
@@ -233,8 +229,8 @@ namespace Infrastructure.Connectivity.Connector
                     Type = UniqueIDType.ClientReference,
                 },
                 HotelRes = new Infrastructure.Connectivity.Connector.Models.Message.BookingRQ.HotelRes()
-                {
-                    Rooms =ToBookingRooms(query.Rooms, bc.BookCode).ToList()
+                {                   
+                    Rooms =ToBookingRooms(query.Rooms, vc.BokingCode, query.Holder).ToList()
                 }
             };
 
@@ -245,20 +241,21 @@ namespace Infrastructure.Connectivity.Connector
             };
         }
         
-        private List<Connectivity.Connector.Models.Message.BookingRQ.Room> ToBookingRooms(IList<Connectivity.Queries.BookingRoom> rooms, string bookingCode)
+        private List<Connectivity.Connector.Models.Message.BookingRQ.Room> ToBookingRooms(IList<Connectivity.Queries.BookingRoom> rooms, string[] bookingCode, BookingPax holder)
         {
             var results = new List<Connectivity.Connector.Models.Message.BookingRQ.Room>();
+            int i = 0;
             foreach (var room in rooms)
-            {
+            {               
                 var guests = new List<Guest>();
                 foreach (var guest in room.Paxes)
-                {
+                {                   
                     var newGuest = new Guest();
                     newGuest.PersonName = new PersonName();
                     newGuest.PersonName.GivenName = guest.Name;
                     newGuest.PersonName.Surname = guest.Surname;
-                    newGuest.PersonName.NamePrefix = "Mr.";
-                    //newGuest.LeadGuest = guest.Holder; Preguntar que es esto
+                    newGuest.PersonName.NamePrefix = guest.Title;
+                    newGuest.LeadGuest = guest.IdPax == holder.IdPax && guest.Name == holder.Name;
                     newGuest.AgeCode = guest.Age >= ServiceConf.ChildrenAge ? GuestAgeCode.A : GuestAgeCode.C;
 
                     if (guest.Age < ServiceConf.ChildrenAge)
@@ -268,7 +265,7 @@ namespace Infrastructure.Connectivity.Connector
                 }
 
                 var newRoom = new Connectivity.Connector.Models.Message.BookingRQ.Room();
-                newRoom.RoomRate = new Connectivity.Connector.Models.Message.BookingRQ.RoomRate() { BookingCode = bookingCode };
+                newRoom.RoomRate = new Connectivity.Connector.Models.Message.BookingRQ.RoomRate() { BookingCode = bookingCode[i++] };
                 newRoom.Guests = guests;
 
                 results.Add(newRoom);

@@ -116,7 +116,7 @@ namespace Ijuniper.test
         public async Task MethodValuation()
         {
 
-            var vc = "d1fc6709-991c-4ae4-8826-5cf05718efda^[1~,20,23,__^[DE^[";
+            var vc = "15892^[p4j7qdMid1rYauo/JWqoSjNH3i017CN94XctPAMq8Z/kH5nPI7qieY+ulwEVAlWZbP1n8qmrwXNGH2Ndn8QNHRFnqn5cn9llvj5z2wxuuXQbt/FSEe+mwJcAoW8Kd+xcRM2dbQWp6Pzm0BNJbfy7og5YRCX+g290M92mqR6HF4Jca1p3fZ867c0PrhYgS36UuK92zQSVGTHp/slsMPTmk1W4aQqb3lm4gwagTVEhh42VMvyY7/799z0ilIor/ElAfsHIi4rUhOba/Jiw7SJSY+YE90BQ9i5Nry17fRWWbEBpKimyfwg3LkEjvII+q6Ii__p4j7qdMid1rYauo/JWqoSqSJODu+tk1wOHdwK2jLbdT0vWVBINFKfDi4MT6Qnbc4yNxfPz+A9hbbD2J6JKokjxjRGFmIl+hN5idP0uAufIAbt/FSEe+mwJcAoW8Kd+xcRM2dbQWp6Pzm0BNJbfy7og5YRCX+g290M92mqR6HF4Jca1p3fZ867c0PrhYgS36UuK92zQSVGTHp/slsMPTmk1W4aQqb3lm4gwagTVEhh42TFi9jfBd2laP9qmL5VLEsfsHIi4rUhOba/Jiw7SJSY+YE90BQ9i5Nry17fRWWbEBpKimyfwg3LkEjvII+q6Ii^[1__2^[2025-07-17";
 
             var valRequest = GetRequest("api/Valuation", "BEDBDDDB5813A41E2B248329CDB4C884B23D0FF4F95C6AA10840B8B761B059F3");
             ValuationQuery valQuery = new ValuationQuery()
@@ -127,7 +127,7 @@ namespace Ijuniper.test
                     Code = "IPaximum",
                     Connection = new System.Collections.Generic.Dictionary<string, string>()
                     {
-                        {"Url", "https://staging.olympiaeurope.com/NewAvailabilityServlet/hotelavail/OTA2014Compact"},
+                        {"Url", "https://staging.olympiaeurope.com/NewAvailabilityServlet/hotelres/OTA2014Compact"},
                         {"Password", "5a70e77bc3"},
                         {"Username", "628834"},
                         {"Context", "olympia_europe"}
@@ -169,7 +169,7 @@ namespace Ijuniper.test
         [Test]
         public async Task MethodBooking()
         {
-            var bc = "d1fc6709-991c-4ae4-8826-5cf05718efda^[1~,20,23,__^[DE^[^]d1fc6709-991c-4ae4-8826-5cf05718efda^]6b34d56e-3740-407c-833a-82d3fc05dfdc^]DE^]11/21/2024 12:01:45 AM^]";
+            var bc = "15892^[p4j7qdMid1rYauo/JWqoSjNH3i017CN94XctPAMq8Z/kH5nPI7qieY+ulwEVAlWZbP1n8qmrwXNGH2Ndn8QNHRFnqn5cn9llvj5z2wxuuXQbt/FSEe+mwJcAoW8Kd+xcRM2dbQWp6Pzm0BNJbfy7og5YRCX+g290M92mqR6HF4Jca1p3fZ867c0PrhYgS36UuK92zQSVGTHp/slsMPTmk1W4aQqb3lm4gwagTVEhh42VMvyY7/799z0ilIor/ElAfsHIi4rUhOba/Jiw7SJSY+YE90BQ9i5Nry17fRWWbEBpKimyfwg3LkEjvII+q6Ii__p4j7qdMid1rYauo/JWqoSqSJODu+tk1wOHdwK2jLbdT0vWVBINFKfDi4MT6Qnbc4yNxfPz+A9hbbD2J6JKokjxjRGFmIl+hN5idP0uAufIAbt/FSEe+mwJcAoW8Kd+xcRM2dbQWp6Pzm0BNJbfy7og5YRCX+g290M92mqR6HF4Jca1p3fZ867c0PrhYgS36UuK92zQSVGTHp/slsMPTmk1W4aQqb3lm4gwagTVEhh42TFi9jfBd2laP9qmL5VLEsfsHIi4rUhOba/Jiw7SJSY+YE90BQ9i5Nry17fRWWbEBpKimyfwg3LkEjvII+q6Ii^[1__2^[2025-07-17";
 
 
             var bookRequest = GetRequest("api/Booking/create", "BEDBDDDB5813A41E2B248329CDB4C884B23D0FF4F95C6AA10840B8B761B059F3");
@@ -180,9 +180,15 @@ namespace Ijuniper.test
                     Code = "IPaximum",
                     Connection = new System.Collections.Generic.Dictionary<string, string>()
                     {
-
-                        { "Url","http://api.stage.paximum.com"},
-                        { "ApiKey","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkYjkwZmJmZi03YWNkLTQyNDctYmZlNi01MTk4NzkwNWJlNzIiLCJyb2xlIjoiYjJjOmFwcCIsIm5iZiI6MTcyNDY1NjQwMSwiZXhwIjoxODgyNDIyNzYyLCJpYXQiOjE3MjQ2NTY0MDEsImlzcyI6Imh0dHBzOi8vYXV0aC5wYXhpbXVtLmNvbSIsImF1ZCI6Imh0dHBzOi8vYXBpLnBheGltdW0uY29tIn0.iBfdfn6wSUFsjC1lGcZNd9cYFRmAjktNx_cFiIx0Oak"},
+                        {"Url", "https://staging.olympiaeurope.com/NewAvailabilityServlet/hotelres/OTA2014Compact"},
+                        {"Password", "5a70e77bc3"},
+                        {"Username", "628834"},
+                        {"Context", "olympia_europe"}
+                    }
+                    ,
+                    Params = new System.Collections.Generic.Dictionary<string, string>()
+                    {
+                        { "NumberAccommodationPerRequest", "150" }
                     }
                 }
                 ,
@@ -192,26 +198,29 @@ namespace Ijuniper.test
                 ,
                 Rooms = new List<Application.Dto.BookingCreateService.Room>()
                 {
-                     new Application.Dto.BookingCreateService.Room(){
+                    new Application.Dto.BookingCreateService.Room(){
                         Paxes = new List<Application.Dto.BookingCreateService.Pax>(){
-                            new Pax(){ Id = 1,Name = "Test", Surname = "Test", Age = 20, Title="Mr", Email = "test@test.test"},
-                            new Pax(){ Id = 2,Name = "Test1", Surname = "Test1", Age = 23, Title="Mr",  Email = "test@test.test"}
+                            new Pax(){ Id = 1,Name = "Nino", Surname = "Rac", Age = 30, Title="Mr.", Email = "test@test.test"}
                         },
-
+                    },
+                    new Application.Dto.BookingCreateService.Room(){
+                        Paxes = new List<Application.Dto.BookingCreateService.Pax>(){
+                            new Pax(){ Id = 1,Name = "Test1", Surname = "Test1", Age = 30, Title="Mr.", Email = "test@test.test"},
+                            new Pax(){ Id = 2,Name = "Test2", Surname = "Test2", Age = 30, Title="Mr.",  Email = "test@test.test"}
+                        },
+                     },
                 },
-
-
-                },
-                Holder = new Pax() { Id = 1, Name = "Nino", Surname = "rac" },
+                Holder = new Pax() { Id = 1, Name = "Nino", Surname = "Rac" },
                 Include = new Dictionary<string, List<string>>()
                 {
                     { "accommodations", new List<string>(){ "name" } },
-                    { "remarks", null },
+                    { "root", new List<string>(){ "remarks" } },
                     { "cancellationpolicy", null},
                     { "mealplan", new List<string>(){ "name" } },
                     { "fees", null},
                     { "rooms", null},
-                    { "price", null}
+                    { "occupancy", null},
+                    { "price", null},
 
                 },
                 Remarks = "Test",
