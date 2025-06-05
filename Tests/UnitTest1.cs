@@ -291,7 +291,7 @@ namespace Ijuniper.test
         [Test]
         public async Task MethodGetBooking()
         {
-            var resNo = "d5217632-eb64-4983-bfae-d5943926f1c4"; //
+            var resNo = "4207826"; //
             var clientReference = "Test638664114604602909";
             //8047080112
             var request = GetRequest("api/Booking/get", "BEDBDDDB5813A41E2B248329CDB4C884B23D0FF4F95C6AA10840B8B761B059F3", HttpMethod.Post);
