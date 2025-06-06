@@ -3,7 +3,11 @@ using Domain.Common;
 using Domain.Common.MinimumPrice;
 using Infrastructure.Connectivity.Connector.Models.Message.BookingRQ;
 using Infrastructure.Connectivity.Connector.Models.Message.BookingRS;
+using Infrastructure.Connectivity.Connector.Models.Message.Common;
 using Infrastructure.Connectivity.Connector.Models.Message.ErrorRS;
+using System.Globalization;
+using System;
+using BookingRoom = Infrastructure.Connectivity.Connector.Models.Message.BookingRS.BookingRoom;
 
 namespace Application.WorkFlow.Services
 {
@@ -48,11 +52,17 @@ namespace Application.WorkFlow.Services
         {
             if (Response.BookingRS != null)
             {
-                booking.Status = SetStatus(Response.BookingRS);
-                booking.BookingId = "";
+               
 
                 var hotelRes = Response.BookingRS.BookingInfoRs.HotelResList.First();
+                var locator = hotelRes.HotelResInfo.HotelResIDs.FirstOrDefault(x => x.Type == "Locator").ID;
+                var globalInfo = Response.BookingRS.BookingInfoRs.ResGlobalInfo;
+                var bookingRoom = hotelRes.Rooms.FirstOrDefault();
+                var currency = bookingRoom.RoomRate.Total.Currency;
+                var checkin = DateTime.ParseExact(globalInfo.DataRange.Start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
 
+                booking.Status = SetStatus(hotelRes);
+                booking.BookingId = locator;
 
                 if (IncludeService.CheckIfIsIncluded(include, keyInclude, BookingsK.Cancellocator.intance))
                     booking.CancelLocator = "";
@@ -61,38 +71,37 @@ namespace Application.WorkFlow.Services
                     booking.HCN = "";
 
                 if (IncludeService.CheckIfIsIncluded(include, keyInclude, BookingsK.CheckInDate.intance))
-                    booking.CheckIn = default;
+                    booking.CheckIn = DateTime.ParseExact(globalInfo.DataRange.Start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
 
                 if (IncludeService.CheckIfIsIncluded(include, keyInclude, BookingsK.CheckOutDate.intance))
-                    booking.CheckOut = default;
+                    booking.CheckOut = DateTime.ParseExact(globalInfo.DataRange.End, "yyyy-MM-dd", CultureInfo.InvariantCulture);
 
                 if (IncludeService.CheckIfIsIncluded(include, keyInclude, BookingsK.HotelConformationCode.intance))
-                    booking.ClientReference = default;
+                    booking.ClientReference = globalInfo.ResIDs.Where(x=>x.Type == "ClientReference").FirstOrDefault().ID;
 
                 if (IncludeService.CheckIfIsIncluded(include, keyInclude, BookingsK.Comments.intance))
                     booking.Comments = GetComments( hotelRes);
 
                 if (IncludeService.CheckIfIsIncluded(include, Holder.intance, Holder.Empty.intance))
-                    booking.Holder = GetHolder(default, default);
+                    booking.Holder = GetHolder(default, globalInfo);
 
                 if (IncludeService.CheckIfIsIncluded(include, Hotel.intance, Hotel.Empty.intance))
-                    booking.Hotel = GetHotelInfo(include, default);
+                    booking.Hotel = GetHotelInfo(include, hotelRes);
 
                 if (IncludeService.CheckIfIsIncluded(include, Mealplans.intance, Mealplans.Empty.intance))
-                    booking.Mealplan = GetMealplanInfo(include, default);
+                    booking.Mealplan = GetMealplanInfo(include, bookingRoom);
 
                 if (IncludeService.CheckIfIsIncluded(include, Rooms.intance, Rooms.Empty.intance))
-                    booking.Rooms = GetRooms(include, default, default);
+                    booking.Rooms = GetRooms(include, hotelRes);
 
                 if (IncludeService.CheckIfIsIncluded(include, Prices.intance, Prices.Empty.intance))
                 {
-                    booking.Price = GetPrice(default);
+                    booking.Price = GetPrice(hotelRes);
                     booking.MinimumPrice = GetMinimumPrice(default);
                 }
 
                 if (IncludeService.CheckIfIsIncluded(include, Cancellationpolicy.intance, Cancellationpolicy.Empty.intance))
-                   /* booking.CancellationPolicy = CancellationPolicyService.GetCancellationPolicy(default, 0,"",
-                        DateTime.Parse(default));*/
+                   booking.CancellationPolicy = GetCancellationPolicy(include, hotelRes.Rooms, currency, checkin);
 
                 if (IncludeService.CheckIfIsIncluded(include, Fees.intance, Fees.Empty.intance))
                     booking.Fees = GetFees(default);
@@ -101,31 +110,34 @@ namespace Application.WorkFlow.Services
             return booking;
         }
 
-        private static BookingHotel GetHotelInfo(Dictionary<string, List<string>>? include, object service)
+        private static BookingHotel GetHotelInfo(Dictionary<string, List<string>>? include,
+            Infrastructure.Connectivity.Connector.Models.Message.BookingRS.HotelRes hotelRes)
         {
             //TODO: Fill hotel
+            var hotelInfo = hotelRes.Info;
             var hotel = new BookingHotel()
             {
-                Code = default,
+                Code = hotelInfo.HotelCode,
             };
 
             if (IncludeService.CheckIfIsIncluded(include, Hotel.intance, Hotel.Name.intance))
-                hotel.Name = default;
+                hotel.Name = hotelInfo.HotelName;
 
             return hotel;
         }
 
-        private static Mealplan GetMealplanInfo(Dictionary<string, List<string>>? include, object service)
+        private static Mealplan GetMealplanInfo(Dictionary<string, List<string>>? include,
+            BookingRoom room)
         {
             // TODO: Fill mealplan
             var mealplan = new Mealplan()
             {
-                Code = default,
+                Code = room.RoomRate.MealPlan,
 
             };
 
             if (IncludeService.CheckIfIsIncluded(include, Mealplans.intance, Mealplans.Name.intance))
-                mealplan.Name = default;
+                mealplan.Name = room.RoomRate.MealPlan;
 
             return mealplan;
         }
@@ -135,12 +147,29 @@ namespace Application.WorkFlow.Services
             return null;
         }
 
-        private static Domain.Common.Price.Price GetPrice(List<object> prices)
+        private static Domain.Common.Price.Price GetPrice(
+            Infrastructure.Connectivity.Connector.Models.Message.BookingRS.HotelRes hotelRes
+            )
         {
             // TODO: Fill price
-            return null;
+            var roomRates = hotelRes.Rooms.Select(r=>r.RoomRate).ToList();
 
-            //return PriceService.GetPrice(price.Currency, price.TotalFixAmounts.Gross.ToDecimal(), commissionable, commission, null);
+            if (roomRates.Any())
+            {
+                var currency = roomRates.FirstOrDefault().Total.Currency;
+                decimal totalCommission = 0;
+                decimal totalAmount = 0;
+
+                foreach (var roomRate in roomRates)
+                {
+                    totalAmount += roomRate.Total.Amount;
+                    totalCommission += roomRate.Total.Commission;
+                }
+
+                return PriceService.GetPrice(currency, totalAmount, true, totalCommission, null);
+            }
+
+            return null;
         }
 
         private static MinimumPrice? GetMinimumPrice(List<object> prices)
@@ -167,26 +196,27 @@ namespace Application.WorkFlow.Services
             return null;
         }
 
-        private static Domain.Common.Pax? GetHolder(Dictionary<string, List<string>>? include, 
-            object paxes)
+        private static Domain.Common.Pax? GetHolder(Dictionary<string, List<string>>? include,
+            Infrastructure.Connectivity.Connector.Models.Message.BookingRS.ResGlobalInfo globalInfo)
         {
             // TODO: Fill holder
-
+           
             return null;
         }
 
         private static Domain.Common.Pax GetPax(Dictionary<string, List<string>>? include, Parent key, 
-            object pax)
+            Guest pax)
         {
             // TODO: Fill pax
+            var personInfo = pax.PersonName;
             var bkPax = new Domain.Common.Pax()
             {
-                Name = default,
-                Surname = default
+                Name = personInfo.GivenName,
+                Surname = personInfo.Surname
             };
 
             if (IncludeService.CheckIfIsIncluded(include, key, Paxes.Title.intance))
-                bkPax.Title = default;
+                bkPax.Title = personInfo.NamePrefix;
 
             if (IncludeService.CheckIfIsIncluded(include, key, Paxes.Address.intance))
                 bkPax.Address = default;
@@ -218,42 +248,33 @@ namespace Application.WorkFlow.Services
             return bkPax;
         }
 
-        private static List<Domain.Booking.BookingRoom>? GetRooms(Dictionary<string, List<string>>? include, object service, 
-            object paxes)
+        private static List<Domain.Booking.BookingRoom>? GetRooms(Dictionary<string, List<string>>? include, Infrastructure.Connectivity.Connector.Models.Message.BookingRS.HotelRes hotelRes)
         {
             // TODO: Fill rooms
-            
-            return null;
 
-            //var rooms = new List<BookingRoom>();
-            //foreach (var room in service.HotelRooms)
-            //{
-            //    var roomType = "";
-            //    if (room.RoomCategory != null)
-            //        roomType = room.RoomCategory.Type;
+            var rooms = new List<Domain.Booking.BookingRoom>();
+            foreach (var room in hotelRes.Rooms)
+            {               
+                var occupancy = new List<Domain.Common.Pax>();
+                foreach (var relpax in room.Guests)
+                {
+                    occupancy.Add(GetPax(include, Paxes.intance, relpax));
+                }
 
-            //    var occupancy = new List<Domain.Common.Pax>();
-            //    foreach (var relpax in room.RelPaxes)
-            //    {
-            //        var pax = paxes.FirstOrDefault(x => x.IdPax == relpax.IdPax);
-            //        if (pax != null)
-            //            occupancy.Add(GetPax(include, Paxes.intance, pax));
-            //    }
+                var bookingRoom = new Domain.Booking.BookingRoom() { Code = room.RoomType.Code };
 
-            //    var bookingRoom = new BookingRoom() { Code = roomType };
+                if (IncludeService.CheckIfIsIncluded(include, Rooms.intance, Rooms.Name.intance))
+                    bookingRoom.Name = room.RoomType.Name;
 
-            //    if (IncludeService.CheckIfIsIncluded(include, Rooms.intance, Rooms.Name.intance))
-            //        bookingRoom.Name = room.Name;
+                if (IncludeService.CheckIfIsIncluded(include, Rooms.intance, Rooms.Description.intance))
+                    bookingRoom.Description = room.RoomType.Name;
 
-            //    if (IncludeService.CheckIfIsIncluded(include, Rooms.intance, Rooms.Description.intance))
-            //        bookingRoom.Description = room.Description;
+                if (IncludeService.CheckIfIsIncluded(include, Paxes.intance, Paxes.Empty.intance))
+                    bookingRoom.Paxes = occupancy;
 
-            //    if (IncludeService.CheckIfIsIncluded(include, Paxes.intance, Paxes.Empty.intance))
-            //        bookingRoom.Paxes = occupancy;
-
-            //    rooms.Add(bookingRoom);
-            //}
-            //return rooms;
+                rooms.Add(bookingRoom);
+            }
+            return rooms;
 
         }
 
@@ -270,6 +291,7 @@ namespace Application.WorkFlow.Services
 
                 if (room.RoomType.Special != null)
                     result += "." + room.RoomType.Special;
+
                 if (hotelRes.Info != null && hotelRes.Info.Warnings != null && hotelRes.Info.Warnings.Any())
                     result += "." + string.Join(".", hotelRes.Info.Warnings.Select(x => x.Text));
             }
@@ -277,34 +299,60 @@ namespace Application.WorkFlow.Services
             return result;
         }
 
-
-        private static Status SetStatus(BookingRS BookingRS)
+        private static Domain.Common.CancellationPolicy.CancellationPolicy? GetCancellationPolicy(Dictionary<string, List<string>>? include,
+            List<BookingRoom> rooms, string currency, DateTime checking)
         {
-            if (BookingRS == null)
-                return Status.Error;
+            if (IncludeService.CheckIfIsIncluded(include, Cancellationpolicy.intance, Cancellationpolicy.Empty.intance))
+            {
+                // TODO: Fill CancellationPolicy
+                var listCancellationPolicies = new List<Tuple<int, DateTime, decimal>>();
+                int roomRef = 1;
+                foreach (var room in rooms)
+                {
+                    var roomRate = room.RoomRate;                   
+                    var penaltyObj = roomRate.CancelPenalties;
+                    var cancelPenalties = penaltyObj.CancelPenalty;
+                    foreach (var penalty in cancelPenalties)
+                    {
+                        var amount = penalty.Charge.Amount == null ? 0 : penalty.Charge.Amount;
+                        if (amount > 0)
+                        {
+                            var dateFrom = checking.AddDays(-penalty.Deadline.Units);
+                            listCancellationPolicies.Add(new Tuple<int, DateTime, decimal>
+                                (
+                                roomRef,
+                                dateFrom,
+                                penalty.Charge.Amount
+                                ));
+                        }
+                    }
+                    
+                    if (listCancellationPolicies.Any())
+                    {
+                        return Infrastructure.Connectivity.Connector.Extension.Extension
+                            .ProcessCancelPolice(listCancellationPolicies, currency, rooms.Count);
+                    }
+                    roomRef++;
+                }
+            }
+            return null;
+        }
 
-            var bookingStatus = BookingRS.BookingInfoRs.HotelResList.First();
-
-            var status = Status.Confirmed;
-
-           /* switch (status)
+        private static Status SetStatus(
+            Infrastructure.Connectivity.Connector.Models.Message.BookingRS.HotelRes hotelRes)
+        {
+           var status = hotelRes.ResStatus;
+           switch (status)
             {
                 case "OK":
-                    status = Status.Confirmed;
-                    break;
+                    return Status.Confirmed;
                 case "CA":
-                    status = Status.Cancelled;
-                    break;
+                    return Status.Cancelled;
                 case "OR":
-                    status = Status.OnRequest;
-                    break;
-
+                    return Status.OnRequest;
                 default:
-                    status = Status.Error;                   
-                    break;
-            }*/
-
-            return status;
+                    return Status.Error; 
+            }
         }
 
     }
