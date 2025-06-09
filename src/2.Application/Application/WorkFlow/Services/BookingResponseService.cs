@@ -52,14 +52,12 @@ namespace Application.WorkFlow.Services
         {
             if (Response.BookingRS != null)
             {
-               
-
                 var hotelRes = Response.BookingRS.BookingInfoRs.HotelResList.First();
                 var locator = hotelRes.HotelResInfo.HotelResIDs.FirstOrDefault(x => x.Type == "Locator").ID;
                 var globalInfo = Response.BookingRS.BookingInfoRs.ResGlobalInfo;
                 var bookingRoom = hotelRes.Rooms.FirstOrDefault();
                 var currency = bookingRoom.RoomRate.Total.Currency;
-                var checkin = DateTime.ParseExact(globalInfo.DataRange.Start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                var checkin = DateTime.ParseExact(globalInfo.DateRange.Start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
 
                 booking.Status = SetStatus(hotelRes);
                 booking.BookingId = locator;
@@ -71,10 +69,10 @@ namespace Application.WorkFlow.Services
                     booking.HCN = "";
 
                 if (IncludeService.CheckIfIsIncluded(include, keyInclude, BookingsK.CheckInDate.intance))
-                    booking.CheckIn = DateTime.ParseExact(globalInfo.DataRange.Start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                    booking.CheckIn = DateTime.ParseExact(globalInfo.DateRange.Start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
 
                 if (IncludeService.CheckIfIsIncluded(include, keyInclude, BookingsK.CheckOutDate.intance))
-                    booking.CheckOut = DateTime.ParseExact(globalInfo.DataRange.End, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                    booking.CheckOut = DateTime.ParseExact(globalInfo.DateRange.End, "yyyy-MM-dd", CultureInfo.InvariantCulture);
 
                 if (IncludeService.CheckIfIsIncluded(include, keyInclude, BookingsK.HotelConformationCode.intance))
                     booking.ClientReference = globalInfo.ResIDs.Where(x=>x.Type == "ClientReference").FirstOrDefault().ID;

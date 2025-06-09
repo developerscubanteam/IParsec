@@ -82,16 +82,20 @@ namespace Ijuniper.test
                 AuditRequests = true,
                 Include = new Dictionary<string, List<string>>()
                 {
-                    { "accommodations", new List<string>(){ "name" } },
-                    { "remarks", null },
-                    { "fees", null },
-                    { "rooms", new List<string>(){"name", "description", "occupancy" } },
-                    { "cancellationpolicy", null },
-                    { "promotions", null },
-                    { "mealplan", new List<string>(){ "name"} },
-                    { "root", new List<string>(){ "paymenttype","code","name" }},
-                    { "price", null },
-                    { "hotel", new List<string>(){"name" } }
+                    {"accommodations", new(){"name"} },
+                    {"remarks", new(){ } },
+                    {"fees", new(){ } },
+                    {"rooms", new(){"name", "description", "occupancy" } },
+                    {"occupancy", new(){ } },
+                    {"cancellationpolicy", new(){ } },
+                    {"promotions", new(){ } },
+                    {"mealplan", new(){ "name" } },
+                    {"root", new (){"paymenttype", "code", "name", "remarks" }},
+                    {"price", new(){ } },
+                    {"bookings", new (){"cancellocator", "hcn", "checkin", "checkout", "clientreference", "comments" } },
+                    {"holder", new(){ } },
+                    {"hotel", new(){ "name" } },
+                    {"paxes", new(){ "title", "address", "country", "city", "age", "document", "email", "idpax", "phonenumber", "postalcode" } }
                 },
             };
             HttpRequestMessage request = GetRequest("api/Availability"
@@ -116,7 +120,7 @@ namespace Ijuniper.test
         public async Task MethodValuation()
         {
 
-            var vc = "15892^[p4j7qdMid1rYauo/JWqoSjNH3i017CN94XctPAMq8Z/kH5nPI7qieY+ulwEVAlWZbP1n8qmrwXNGH2Ndn8QNHRFnqn5cn9llvj5z2wxuuXQbt/FSEe+mwJcAoW8Kd+xcRM2dbQWp6Pzm0BNJbfy7og5YRCX+g290M92mqR6HF4Jca1p3fZ867c0PrhYgS36UuK92zQSVGTHp/slsMPTmk1W4aQqb3lm4gwagTVEhh42VMvyY7/799z0ilIor/ElAfsHIi4rUhOba/Jiw7SJSY+YE90BQ9i5Nry17fRWWbEBpKimyfwg3LkEjvII+q6Ii__p4j7qdMid1rYauo/JWqoSqSJODu+tk1wOHdwK2jLbdT0vWVBINFKfDi4MT6Qnbc4yNxfPz+A9hbbD2J6JKokjxjRGFmIl+hN5idP0uAufIAbt/FSEe+mwJcAoW8Kd+xcRM2dbQWp6Pzm0BNJbfy7og5YRCX+g290M92mqR6HF4Jca1p3fZ867c0PrhYgS36UuK92zQSVGTHp/slsMPTmk1W4aQqb3lm4gwagTVEhh42TFi9jfBd2laP9qmL5VLEsfsHIi4rUhOba/Jiw7SJSY+YE90BQ9i5Nry17fRWWbEBpKimyfwg3LkEjvII+q6Ii^[1__2^[2025-07-17";
+            var vc = "15892^[p4j7qdMid1rYauo/JWqoStQ8BdyMKFpyemwsMuTToSvkH5nPI7qieY+ulwEVAlWZ0M5Orw+/edu5yuY9KTfTVxFnqn5cn9llvj5z2wxuuXS+YnoMBBP0CizWYh2q2jevRM2dbQWp6Pzm0BNJbfy7og5YRCX+g290M92mqR6HF4Jca1p3fZ867c0PrhYgS36UuK92zQSVGTHp/slsMPTmk6lHoi5UmZ/yLiZWe2oF5++++fI9L8yLO1zV0lPCu9/Lco6W0i2teataXVCi4uKFKMAg7thIvqz8ncvkKmGB7Fo7yBESY0peUs5LNZPPU+IwIoYTU1CUxt9/sa9B2l9zBQ==__p4j7qdMid1rYauo/JWqoStQ8BdyMKFpyemwsMuTToSvkH5nPI7qieY+ulwEVAlWZcEadh9I8te6PUz4S1I9IDhjRGFmIl+hN5idP0uAufIC+YnoMBBP0CizWYh2q2jevRM2dbQWp6Pzm0BNJbfy7og5YRCX+g290M92mqR6HF4Jca1p3fZ867c0PrhYgS36UuK92zQSVGTHp/slsMPTmk6lHoi5UmZ/yLiZWe2oF5++++fI9L8yLO1zV0lPCu9/Lco6W0i2teataXVCi4uKFKMAg7thIvqz8ncvkKmGB7Fo7yBESY0peUs5LNZPPU+IwBw2IupXY7g+p4ux3lymqqQ==^[1__2^[2025-07-17";
 
             var valRequest = GetRequest("api/Valuation", "BEDBDDDB5813A41E2B248329CDB4C884B23D0FF4F95C6AA10840B8B761B059F3");
             ValuationQuery valQuery = new ValuationQuery()
@@ -141,16 +145,20 @@ namespace Ijuniper.test
                 ValuationCode = vc,
                 Include = new Dictionary<string, List<string>>()
                 {
-                    { "accommodations", new List<string>(){ "name" } },
-                    { "root", new List<string>(){ "remarks" } },
-                    { "cancellationpolicy", null},
-                    { "mealplan", new List<string>(){ "name" } },
-                    { "fees", null},
-                    { "rooms", null},
-                    { "occupancy", null},
-                    { "price", null},
-
-
+                    {"accommodations", new(){"name"} },
+                    {"remarks", new(){ } },
+                    {"fees", new(){ } },
+                    {"rooms", new(){"name", "description", "occupancy" } },
+                    {"occupancy", new(){ } },
+                    {"cancellationpolicy", new(){ } },
+                    {"promotions", new(){ } },
+                    {"mealplan", new(){ "name" } },
+                    {"root", new (){"paymenttype", "code", "name", "remarks" }},
+                    {"price", new(){ } },
+                    {"bookings", new (){"cancellocator", "hcn", "checkin", "checkout", "clientreference", "comments" } },
+                    {"holder", new(){ } },
+                    {"hotel", new(){ "name" } },
+                    {"paxes", new(){ "title", "address", "country", "city", "age", "document", "email", "idpax", "phonenumber", "postalcode" } }
                 },
                 Timeout = 100000,
             };
@@ -169,7 +177,7 @@ namespace Ijuniper.test
         [Test]
         public async Task MethodBooking()
         {
-            var bc = "15892^[p4j7qdMid1rYauo/JWqoSjNH3i017CN94XctPAMq8Z/kH5nPI7qieY+ulwEVAlWZbP1n8qmrwXNGH2Ndn8QNHRFnqn5cn9llvj5z2wxuuXQbt/FSEe+mwJcAoW8Kd+xcRM2dbQWp6Pzm0BNJbfy7og5YRCX+g290M92mqR6HF4Jca1p3fZ867c0PrhYgS36UuK92zQSVGTHp/slsMPTmk1W4aQqb3lm4gwagTVEhh42VMvyY7/799z0ilIor/ElAfsHIi4rUhOba/Jiw7SJSY+YE90BQ9i5Nry17fRWWbEBpKimyfwg3LkEjvII+q6Ii__p4j7qdMid1rYauo/JWqoSqSJODu+tk1wOHdwK2jLbdT0vWVBINFKfDi4MT6Qnbc4yNxfPz+A9hbbD2J6JKokjxjRGFmIl+hN5idP0uAufIAbt/FSEe+mwJcAoW8Kd+xcRM2dbQWp6Pzm0BNJbfy7og5YRCX+g290M92mqR6HF4Jca1p3fZ867c0PrhYgS36UuK92zQSVGTHp/slsMPTmk1W4aQqb3lm4gwagTVEhh42TFi9jfBd2laP9qmL5VLEsfsHIi4rUhOba/Jiw7SJSY+YE90BQ9i5Nry17fRWWbEBpKimyfwg3LkEjvII+q6Ii^[1__2^[2025-07-17";
+            var bc = "15892^[p4j7qdMid1rYauo/JWqoStQ8BdyMKFpyemwsMuTToSvkH5nPI7qieY+ulwEVAlWZ0M5Orw+/edu5yuY9KTfTVxFnqn5cn9llvj5z2wxuuXS+YnoMBBP0CizWYh2q2jevRM2dbQWp6Pzm0BNJbfy7og5YRCX+g290M92mqR6HF4Jca1p3fZ867c0PrhYgS36UuK92zQSVGTHp/slsMPTmk6lHoi5UmZ/yLiZWe2oF5++++fI9L8yLO1zV0lPCu9/Lco6W0i2teataXVCi4uKFKMAg7thIvqz8ncvkKmGB7Fo7yBESY0peUs5LNZPPU+IwIoYTU1CUxt9/sa9B2l9zBQ==__p4j7qdMid1rYauo/JWqoStQ8BdyMKFpyemwsMuTToSvkH5nPI7qieY+ulwEVAlWZcEadh9I8te6PUz4S1I9IDhjRGFmIl+hN5idP0uAufIC+YnoMBBP0CizWYh2q2jevRM2dbQWp6Pzm0BNJbfy7og5YRCX+g290M92mqR6HF4Jca1p3fZ867c0PrhYgS36UuK92zQSVGTHp/slsMPTmk6lHoi5UmZ/yLiZWe2oF5++++fI9L8yLO1zV0lPCu9/Lco6W0i2teataXVCi4uKFKMAg7thIvqz8ncvkKmGB7Fo7yBESY0peUs5LNZPPU+IwBw2IupXY7g+p4ux3lymqqQ==^[1__2^[2025-07-17";
 
 
             var bookRequest = GetRequest("api/Booking/create", "BEDBDDDB5813A41E2B248329CDB4C884B23D0FF4F95C6AA10840B8B761B059F3");
@@ -213,14 +221,20 @@ namespace Ijuniper.test
                 Holder = new Pax() { Id = 1, Name = "Nino", Surname = "Rac" },
                 Include = new Dictionary<string, List<string>>()
                 {
-                    { "accommodations", new List<string>(){ "name" } },
-                    { "root", new List<string>(){ "remarks" } },
-                    { "cancellationpolicy", null},
-                    { "mealplan", new List<string>(){ "name" } },
-                    { "fees", null},
-                    { "rooms", null},
-                    { "occupancy", null},
-                    { "price", null},
+                    {"accommodations", new(){"name"} },
+                    {"remarks", new(){ } },
+                    {"fees", new(){ } },
+                    {"rooms", new(){"name", "description", "occupancy" } },
+                    {"occupancy", new(){ } },
+                    {"cancellationpolicy", new(){ } },
+                    {"promotions", new(){ } },
+                    {"mealplan", new(){ "name" } },
+                    {"root", new (){"paymenttype", "code", "name", "remarks" }},
+                    {"price", new(){ } },
+                    {"bookings", new (){"cancellocator", "hcn", "checkin", "checkout", "clientreference", "comments" } },
+                    {"holder", new(){ } },
+                    {"hotel", new(){ "name" } },
+                    {"paxes", new(){ "title", "address", "country", "city", "age", "document", "email", "idpax", "phonenumber", "postalcode" } }
 
                 },
                 Remarks = "Test",
@@ -244,7 +258,7 @@ namespace Ijuniper.test
         {
 
             var cancelrequest = GetRequest("api/Booking/cancel", "BEDBDDDB5813A41E2B248329CDB4C884B23D0FF4F95C6AA10840B8B761B059F3", HttpMethod.Put);
-            var resNo = "GOB07105409WDA4A9JW1P|Test638665772348560358"; //
+            var resNo = "4207837"; //
             BookingCancelQuery cancelQuery = new BookingCancelQuery()
             {
                 ExternalSupplier = new ExternalSupplier()
@@ -266,15 +280,20 @@ namespace Ijuniper.test
                 BookingId = resNo,
                 Include = new Dictionary<string, List<string>>()
                 {
-                    { "accommodations", new List<string>(){ "name" } },
-                    { "remarks", null },
-                    { "cancellationpolicy", null},
-                    { "mealplan", new List<string>(){ "name" } },
-                    { "fees", null},
-                    { "rooms", null},
-                    { "price", null},
-                    { "cancellocator", null}
-
+                   {"accommodations", new(){"name"} },
+                    {"remarks", new(){ } },
+                    {"fees", new(){ } },
+                    {"rooms", new(){"name", "description", "occupancy" } },
+                    {"occupancy", new(){ } },
+                    {"cancellationpolicy", new(){ } },
+                    {"promotions", new(){ } },
+                    {"mealplan", new(){ "name" } },
+                    {"root", new (){"paymenttype", "code", "name", "remarks" }},
+                    {"price", new(){ } },
+                    {"bookings", new (){"cancellocator", "hcn", "checkin", "checkout", "clientreference", "comments" } },
+                    {"holder", new(){ } },
+                    {"hotel", new(){ "name" } },
+                    {"paxes", new(){ "title", "address", "country", "city", "age", "document", "email", "idpax", "phonenumber", "postalcode" } }
                 },
 
 
@@ -291,7 +310,7 @@ namespace Ijuniper.test
         [Test]
         public async Task MethodGetBooking()
         {
-            var resNo = "4207826"; //
+            var resNo = "4207837"; //
             var clientReference = "Test638664114604602909";
             //8047080112
             var request = GetRequest("api/Booking/get", "BEDBDDDB5813A41E2B248329CDB4C884B23D0FF4F95C6AA10840B8B761B059F3", HttpMethod.Post);
@@ -319,14 +338,20 @@ namespace Ijuniper.test
 
                 Include = new Dictionary<string, List<string>>()
                 {
-                    { "accommodations", new List<string>(){ "name" } },
-                    { "remarks", null },
-                    { "cancellationpolicy", null},
-                    { "mealplan", new List<string>(){ "name" } },
-                    { "fees", null},
-                    { "rooms", null},
-                    { "price", null}
-
+                   {"accommodations", new(){"name"} },
+                    {"remarks", new(){ } },
+                    {"fees", new(){ } },
+                    {"rooms", new(){"name", "description", "occupancy" } },
+                    {"occupancy", new(){ } },
+                    {"cancellationpolicy", new(){ } },
+                    {"promotions", new(){ } },
+                    {"mealplan", new(){ "name" } },
+                    {"root", new (){"paymenttype", "code", "name", "remarks" }},
+                    {"price", new(){ } },
+                    {"bookings", new (){"cancellocator", "hcn", "checkin", "checkout", "clientreference", "comments" } },
+                    {"holder", new(){ } },
+                    {"hotel", new(){ "name" } },
+                    {"paxes", new(){ "title", "address", "country", "city", "age", "document", "email", "idpax", "phonenumber", "postalcode" } }
                 },
 
 

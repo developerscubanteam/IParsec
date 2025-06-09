@@ -221,19 +221,7 @@
             }
         }
 
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public RoomTypeStatus Status
-        {
-            get
-            {
-                return this.statusField;
-            }
-            set
-            {
-                this.statusField = value;
-            }
-        }
+       
     }
 
     /// <remarks/>
@@ -2778,132 +2766,6 @@
             }
         }
 
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool SiteSpecified
-        {
-            get
-            {
-                return this.siteFieldSpecified;
-            }
-            set
-            {
-                this.siteFieldSpecified = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public long Timeout
-        {
-            get
-            {
-                return this.timeoutField;
-            }
-            set
-            {
-                this.timeoutField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool TimeoutSpecified
-        {
-            get
-            {
-                return this.timeoutFieldSpecified;
-            }
-            set
-            {
-                this.timeoutFieldSpecified = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public bool ShowNotActive
-        {
-            get
-            {
-                return this.showNotActiveField;
-            }
-            set
-            {
-                this.showNotActiveField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool ShowNotActiveSpecified
-        {
-            get
-            {
-                return this.showNotActiveFieldSpecified;
-            }
-            set
-            {
-                this.showNotActiveFieldSpecified = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public bool ShowStatistics
-        {
-            get
-            {
-                return this.showStatisticsField;
-            }
-            set
-            {
-                this.showStatisticsField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool ShowStatisticsSpecified
-        {
-            get
-            {
-                return this.showStatisticsFieldSpecified;
-            }
-            set
-            {
-                this.showStatisticsFieldSpecified = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        [System.ComponentModel.DefaultValueAttribute(false)]
-        public bool NoCache
-        {
-            get
-            {
-                return this.noCacheField;
-            }
-            set
-            {
-                this.noCacheField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string Options
-        {
-            get
-            {
-                return this.optionsField;
-            }
-            set
-            {
-                this.optionsField = value;
-            }
-        }
     }
 
     /// <remarks/>
@@ -8667,33 +8529,7 @@
             }
         }
 
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(DataType = "date")]
-        public System.DateTime End
-        {
-            get
-            {
-                return this.endField;
-            }
-            set
-            {
-                this.endField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool EndSpecified
-        {
-            get
-            {
-                return this.endFieldSpecified;
-            }
-            set
-            {
-                this.endFieldSpecified = value;
-            }
-        }
+      
     }
 
     /// <remarks/>
@@ -8709,47 +8545,6 @@
 
         private string currencyField;
 
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public double Amount
-        {
-            get
-            {
-                return this.amountField;
-            }
-            set
-            {
-                this.amountField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public double Commission
-        {
-            get
-            {
-                return this.commissionField;
-            }
-            set
-            {
-                this.commissionField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string Currency
-        {
-            get
-            {
-                return this.currencyField;
-            }
-            set
-            {
-                this.currencyField = value;
-            }
-        }
     }
 
     /// <remarks/>
@@ -8777,19 +8572,6 @@
             }
         }
 
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string ID
-        {
-            get
-            {
-                return this.idField;
-            }
-            set
-            {
-                this.idField = value;
-            }
-        }
     }
 
     /// <remarks/>

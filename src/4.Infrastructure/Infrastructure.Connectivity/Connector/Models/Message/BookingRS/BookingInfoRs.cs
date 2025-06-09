@@ -45,7 +45,7 @@ namespace Infrastructure.Connectivity.Connector.Models.Message.BookingRS
 
     public class HotelResInfo
     {   
-        public DataRange DataRange { get; set; }
+        public DateRange DateRange { get; set; }
         public BookingTotal Total { get; set; }
         [XmlArray("HotelResIDs")]
         [XmlArrayItem("HotelResID")]
@@ -56,7 +56,7 @@ namespace Infrastructure.Connectivity.Connector.Models.Message.BookingRS
 
     public class ResGlobalInfo
     {
-        public DataRange DataRange { get; set; }
+        public DateRange DateRange { get; set; }
         public BookingTotal Total { get; set; }   
         public List<ResID> ResIDs { get; set; }
     }
@@ -69,7 +69,7 @@ namespace Infrastructure.Connectivity.Connector.Models.Message.BookingRS
         public string ID { get; set; }
     }
 
-    public class DataRange
+    public class DateRange
     { 
         [XmlAttribute]
         public string Start { get; set; }

@@ -317,10 +317,25 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
                 responseString = await responseMessage.Content.ReadAsStringAsync();             
 
                 if (responseMessage.StatusCode == HttpStatusCode.OK)
-                {                    
-                    var response = responseString.DeserializeXml<Message.BookingRS.BookingInfoRs>();
-
+                {
                     var errors = new List<Domain.Error.Error>();
+
+                    if (IsErrorResponse(responseString))
+                    {
+                        auditRequest.Type = AuditDataType.KO;
+                        var cancelRS = responseString.DeserializeXml<Message.BookingRS.OTACancelRS>();
+                        if (cancelRS.Errors != null && cancelRS.Errors.Any())
+                        {
+                            foreach (var error in cancelRS.Errors)
+                            {
+                                var newError = new Domain.Error.Error(((int)ErrorType.Error).ToString(), error.Message, ErrorType.Error, CategoryErrorType.Provider);
+                                errors.Add(newError);
+                            }                            
+                            return (null,errors, auditData);
+                        }                       
+                    }
+
+                    var response = responseString.DeserializeXml<Message.BookingRS.BookingInfoRs>();                   
 
                     if (response.Errors != null && response.Errors.Any())
                     {
@@ -498,6 +513,21 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
                     return null;
             }
             return new List<Error> { new Error("NO_AVAIL_FOUND", "No availability found", ErrorType.NoResults, CategoryErrorType.Provider) };
+        }
+
+        private bool IsErrorResponse(string xmlResponse)
+        {           
+            var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(xmlResponse);
+
+            var rootName = xmlDoc.DocumentElement?.LocalName;
+
+            if (rootName == "OTA_CancelRS")
+            {              
+                return true;
+            }
+
+            return false;
         }
 
     }

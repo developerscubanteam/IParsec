@@ -1,4 +1,6 @@
-﻿using Domain.BookingCode;
+﻿#nullable disable
+
+using Domain.BookingCode;
 using Domain.Common;
 using Domain.ValuationCode;
 using Infrastructure.Connectivity.Connector.Models;
@@ -63,7 +65,30 @@ namespace Infrastructure.Connectivity.Connector
         {
             var getBookingRQ = BuildCancelBookingRequest(query);
             var response = await _httpWrapper.CancelBooking(query.ConnectionData, getBookingRQ);
+            if(response.Errors == null && response.BookingRS != null)
+            {
+                var getBookingQuery = new BookingsConnectorQuery()
+                {
+                    ConnectionData = query.ConnectionData,
+                    Locator = query.Locator,
+                };
+                var getBookingResponse = await GetBookings(getBookingQuery);
 
+                if (getBookingResponse.Errors == null && getBookingResponse.BookingRS != null)
+                {
+                    response.BookingRS.BookingInfoRs = getBookingResponse.BookingRS.BookingInfoRs;
+                    response.AuditData?.Requests?.AddRange(getBookingResponse.AuditData.Requests);
+                    response.AuditData.NumberOfRequests += getBookingResponse.AuditData.NumberOfRequests;
+                }
+                else
+                {
+                    if (getBookingResponse.AuditData != null && response.AuditData != null)
+                    {
+                        response.AuditData?.Requests?.AddRange(getBookingResponse.AuditData.Requests);
+                        response.AuditData.NumberOfRequests += getBookingResponse.AuditData.NumberOfRequests;
+                    }
+                }
+            }
             return response;
         }
         
