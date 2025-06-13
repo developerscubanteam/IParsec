@@ -2,7 +2,7 @@
 {
 
 
-       /// <remarks/>
+    /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" +
@@ -221,7 +221,19 @@
             }
         }
 
-       
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public RoomTypeStatus Status
+        {
+            get
+            {
+                return this.statusField;
+            }
+            set
+            {
+                this.statusField = value;
+            }
+        }
     }
 
     /// <remarks/>
@@ -2766,6 +2778,132 @@
             }
         }
 
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool SiteSpecified
+        {
+            get
+            {
+                return this.siteFieldSpecified;
+            }
+            set
+            {
+                this.siteFieldSpecified = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public long Timeout
+        {
+            get
+            {
+                return this.timeoutField;
+            }
+            set
+            {
+                this.timeoutField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool TimeoutSpecified
+        {
+            get
+            {
+                return this.timeoutFieldSpecified;
+            }
+            set
+            {
+                this.timeoutFieldSpecified = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool ShowNotActive
+        {
+            get
+            {
+                return this.showNotActiveField;
+            }
+            set
+            {
+                this.showNotActiveField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool ShowNotActiveSpecified
+        {
+            get
+            {
+                return this.showNotActiveFieldSpecified;
+            }
+            set
+            {
+                this.showNotActiveFieldSpecified = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool ShowStatistics
+        {
+            get
+            {
+                return this.showStatisticsField;
+            }
+            set
+            {
+                this.showStatisticsField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool ShowStatisticsSpecified
+        {
+            get
+            {
+                return this.showStatisticsFieldSpecified;
+            }
+            set
+            {
+                this.showStatisticsFieldSpecified = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        [System.ComponentModel.DefaultValueAttribute(false)]
+        public bool NoCache
+        {
+            get
+            {
+                return this.noCacheField;
+            }
+            set
+            {
+                this.noCacheField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string Options
+        {
+            get
+            {
+                return this.optionsField;
+            }
+            set
+            {
+                this.optionsField = value;
+            }
+        }
     }
 
     /// <remarks/>
@@ -4878,12 +5016,12 @@
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-   // [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
+    // [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class getAvailableHotelsRequest
     {
 
         //[System.ServiceModel.MessageHeaderAttribute(Namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" +
-         //   "")]
+        //   "")]
         public ServiceReference.CRSysSecurity CRSysSecurity;
 
         //[System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://parsec.es/hotelapi/OTA2014Compact", Order = 0)]
@@ -4903,11 +5041,11 @@
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-   // [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
+    // [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class getAvailableHotelsResponse
     {
 
-       // [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://parsec.es/hotelapi/OTA2014Compact")]
+        // [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://parsec.es/hotelapi/OTA2014Compact")]
         public ServiceReference.OTA_HotelAvailRS OTA_HotelAvailRS;
 
         public getAvailableHotelsResponse()
@@ -7241,11 +7379,11 @@
     public partial class sendBookingRequestRequest
     {
 
-       /* [System.ServiceModel.MessageHeaderAttribute(Namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" +
-            "")]*/
+        /* [System.ServiceModel.MessageHeaderAttribute(Namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" +
+             "")]*/
         public ServiceReference.CRSysSecurity CRSysSecurity;
 
-       // [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://parsec.es/hotelapi/OTA2014Compact", Order = 0)]
+        // [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://parsec.es/hotelapi/OTA2014Compact", Order = 0)]
         public ServiceReference.OTA_HotelResRQ OTA_HotelResRQ;
 
         public sendBookingRequestRequest()
@@ -7449,7 +7587,7 @@
     public partial class cancelBookingResponse
     {
 
-       // [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://parsec.es/hotelapi/OTA2014Compact", Order = 0)]
+        // [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://parsec.es/hotelapi/OTA2014Compact", Order = 0)]
         public ServiceReference.OTA_BookingInfoRS OTA_BookingInfoRS;
 
         public cancelBookingResponse()
@@ -8011,7 +8149,7 @@
             "")]*/
         public ServiceReference.CRSysSecurity CRSysSecurity;
 
-       // [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://parsec.es/hotelapi/OTA2014Compact", Order = 0)]
+        // [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://parsec.es/hotelapi/OTA2014Compact", Order = 0)]
         public ServiceReference.OTA_ReadRQ OTA_ReadRQ;
 
         public getBookingInfoRequest()
@@ -8529,7 +8667,33 @@
             }
         }
 
-      
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute(DataType = "date")]
+        public System.DateTime End
+        {
+            get
+            {
+                return this.endField;
+            }
+            set
+            {
+                this.endField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool EndSpecified
+        {
+            get
+            {
+                return this.endFieldSpecified;
+            }
+            set
+            {
+                this.endFieldSpecified = value;
+            }
+        }
     }
 
     /// <remarks/>
@@ -8545,6 +8709,47 @@
 
         private string currencyField;
 
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public double Amount
+        {
+            get
+            {
+                return this.amountField;
+            }
+            set
+            {
+                this.amountField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public double Commission
+        {
+            get
+            {
+                return this.commissionField;
+            }
+            set
+            {
+                this.commissionField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string Currency
+        {
+            get
+            {
+                return this.currencyField;
+            }
+            set
+            {
+                this.currencyField = value;
+            }
+        }
     }
 
     /// <remarks/>
@@ -8572,6 +8777,19 @@
             }
         }
 
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string ID
+        {
+            get
+            {
+                return this.idField;
+            }
+            set
+            {
+                this.idField = value;
+            }
+        }
     }
 
     /// <remarks/>
@@ -8619,7 +8837,7 @@
     public partial class getBookingListResponse
     {
 
-       // [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://parsec.es/hotelapi/OTA2014Compact", Order = 0)]
+        // [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://parsec.es/hotelapi/OTA2014Compact", Order = 0)]
         public ServiceReference.OTA_BookingListRS OTA_BookingListRS;
 
         public getBookingListResponse()
