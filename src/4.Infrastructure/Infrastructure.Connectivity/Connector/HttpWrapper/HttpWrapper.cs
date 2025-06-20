@@ -48,11 +48,7 @@ namespace Infrastructure.Connectivities.Iboosy.Connector.HttpWrapper
             var responseString = "";
 
             try
-            { 
-
-                if (auditRequests)
-                    auditData.Requests.Add(new Request() { RQ = rqString });
-
+            {               
                 var client = _httpClientFactory.CreateClient(ServiceConf.ClientName);
                 // client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", connectionData.Token);
                 client.Timeout = TimeSpan.FromMilliseconds(timeout.Value);
