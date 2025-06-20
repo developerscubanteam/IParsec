@@ -175,12 +175,12 @@ namespace Application.WorkFlow
                                     ));
                             }
                         }
-                    }
-                    if (listCancellationPolicies.Any())
-                    {
-                        return Infrastructure.Connectivity.Connector.Extension.Extension
-                            .ProcessCancelPolice(listCancellationPolicies, currency, rooms.Count);
-                    }
+                    }                    
+                }
+                if (listCancellationPolicies.Any())
+                {
+                    return Infrastructure.Connectivity.Connector.Extension.Extension
+                        .ProcessCancelPolice(listCancellationPolicies, currency, rooms.Count);
                 }
             }         
             return null;

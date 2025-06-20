@@ -324,13 +324,12 @@ namespace Application.WorkFlow.Services
                                 ));
                         }
                     }
-                    
-                    if (listCancellationPolicies.Any())
-                    {
-                        return Infrastructure.Connectivity.Connector.Extension.Extension
-                            .ProcessCancelPolice(listCancellationPolicies, currency, rooms.Count);
-                    }
                     roomRef++;
+                }
+                if (listCancellationPolicies.Any())
+                {
+                    return Infrastructure.Connectivity.Connector.Extension.Extension
+                        .ProcessCancelPolice(listCancellationPolicies, currency, rooms.Count);
                 }
             }
             return null;
