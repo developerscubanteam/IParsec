@@ -120,7 +120,7 @@ namespace Ijuniper.test
         public async Task MethodValuation()
         {
 
-            var vc = "15892^[p4j7qdMid1rYauo/JWqoStQ8BdyMKFpyemwsMuTToSvkH5nPI7qieY+ulwEVAlWZ0M5Orw+/edu5yuY9KTfTVxFnqn5cn9llvj5z2wxuuXS+YnoMBBP0CizWYh2q2jevRM2dbQWp6Pzm0BNJbfy7og5YRCX+g290M92mqR6HF4Jca1p3fZ867c0PrhYgS36UuK92zQSVGTHp/slsMPTmk6lHoi5UmZ/yLiZWe2oF5++++fI9L8yLO1zV0lPCu9/Lco6W0i2teataXVCi4uKFKMAg7thIvqz8ncvkKmGB7Fo7yBESY0peUs5LNZPPU+IwIoYTU1CUxt9/sa9B2l9zBQ==__p4j7qdMid1rYauo/JWqoStQ8BdyMKFpyemwsMuTToSvkH5nPI7qieY+ulwEVAlWZcEadh9I8te6PUz4S1I9IDhjRGFmIl+hN5idP0uAufIC+YnoMBBP0CizWYh2q2jevRM2dbQWp6Pzm0BNJbfy7og5YRCX+g290M92mqR6HF4Jca1p3fZ867c0PrhYgS36UuK92zQSVGTHp/slsMPTmk6lHoi5UmZ/yLiZWe2oF5++++fI9L8yLO1zV0lPCu9/Lco6W0i2teataXVCi4uKFKMAg7thIvqz8ncvkKmGB7Fo7yBESY0peUs5LNZPPU+IwBw2IupXY7g+p4ux3lymqqQ==^[1__2^[2025-07-17";
+            var vc = "33402^[p4j7qdMid1rYauo/JWqoSjKKM/QOQCwQhF8SNcMdJh0rmfxita5Qfa+0ZxPnzEoPyGZGZ/c6sNjxi+aQ5ZuK/gGxiKHh8Gg5MGa2lC2QTePURpQPdyojy32LZyltQonQfNoUEv5VKu0eH04jyu0rdVVDqoOMB5YV5mx13zYzcPBJ6QolW/3oWWXDfTIiR3h18oNY7qe5NBJOSFXf52Ay/8JmX2C+/6An21LLwPR1SxT0aNHtkgR9UVTpixhbPnEFvijIvDpmtmuQKHkS7m2RemnATzJFkH9fa5VuJ5VfzUxQ6f2qlp94Rv1q3/Zkaa1c__p4j7qdMid1rYauo/JWqoSonubPrK37OzlcNdN5FGtXwrmfxita5Qfa+0ZxPnzEoPnbb/wigQdJmplULTERXbOXZj2iVGQmAWwdvKNTRrDYvdkdw8ZjP65vDFlPIMOOqjfNoUEv5VKu0eH04jyu0rdVVDqoOMB5YV5mx13zYzcPBJ6QolW/3oWWXDfTIiR3h18oNY7qe5NBJOSFXf52Ay/7LWHkwhQYrkq7JlvKk5kKjO5uIz5KVFyPAvdsjvcbryndXtcKj+m/5m7okQGUzvLeyCCk9gey3js8DfV80tJqr64fL/nZ1nnbjBPYf2O29r/t0O7cOlPUA+Fof+C02D9A==^[1__2^[2025-07-17";
 
             var valRequest = GetRequest("api/Valuation", "BEDBDDDB5813A41E2B248329CDB4C884B23D0FF4F95C6AA10840B8B761B059F3");
             ValuationQuery valQuery = new ValuationQuery()
